@@ -19,17 +19,17 @@ class SessionLogger:
         
         # ANSI color codes for terminal output
         self.state_colors = {
-            "flow": "\\033[92m",              # Green
-            "stuck": "\\033[91m",             # Red
-            "debugging": "\\033[93m",         # Yellow
-            "reviewing": "\\033[96m",         # Cyan
-            "context_switching": "\\033[95m", # Magenta
+            "flow": "\033[92m",              # Green
+            "stuck": "\033[91m",             # Red
+            "debugging": "\033[93m",         # Yellow
+            "reviewing": "\033[96m",         # Cyan
+            "context_switching": "\033[95m", # Magenta
         }
-        self.reset_color = "\\033[0m"
-        
+        self.reset_color = "\033[0m"
+
         # Clear/create log file
         with open(LOG_FILE, "w") as f:
-            f.write(f"DevAura Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\\n\\n")
+            f.write(f"DevAura Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
     
     def log_cycle(self, metrics: Dict[str, Any], classification: Dict[str, Any]):
         """Log a single collection cycle to terminal and file."""
@@ -61,15 +61,15 @@ class SessionLogger:
         # File logging
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {state.upper()} "
-                   f"(confidence: {confidence:.2f})\\n")
+                   f"(confidence: {confidence:.2f})\n")
             f.write(f"  Metrics: WPM={metrics['wpm']:.1f}, "
                    f"Backspace={metrics['backspace_ratio']:.2f}, "
                    f"Mouse={metrics['mouse_distance']:.1f}, "
                    f"CPU={metrics['cpu_percent']:.1f}%, "
                    f"Idle={metrics['idle_seconds']:.1f}s, "
-                   f"Switches={metrics['window_switches']}\\n")
-            f.write(f"  Window: {metrics['active_window']}\\n")
-            f.write(f"  Reason: {reason}\\n\\n")
+                   f"Switches={metrics['window_switches']}\n")
+            f.write(f"  Window: {metrics['active_window']}\n")
+            f.write(f"  Reason: {reason}\n\n")
     
     def print_session_summary(self):
         """Print final session statistics and save to file."""
@@ -96,13 +96,13 @@ class SessionLogger:
         longest_flow = max(flow_windows, key=len) if flow_windows else []
         
         # Format summary
-        print("\\n" + "="*60)
+        print("\n" + "="*60)
         print("SESSION SUMMARY")
         print("="*60)
         print(f"Duration: {timedelta(seconds=int(session_duration))}")
         print(f"Total cycles: {total_cycles}")
-        print("\\nState Distribution:")
-        
+        print("\nState Distribution:")
+
         for state in ["flow", "stuck", "debugging", "reviewing", "context_switching"]:
             if state in state_percentages:
                 color = self.state_colors[state]
@@ -110,28 +110,28 @@ class SessionLogger:
                 bar_length = int(percentage / 5)  # Scale to 20 chars max
                 bar = "█" * bar_length + "░" * (20 - bar_length)
                 print(f"  {color}{state.ljust(16)}{self.reset_color} {bar} {percentage:5.1f}%")
-        
+
         if longest_flow:
             flow_start = longest_flow[0]["timestamp"].strftime('%H:%M:%S')
             flow_duration = len(longest_flow) * 30  # 30 second intervals
-            print(f"\\nLongest Flow Window: {flow_duration}s starting at {flow_start}")
-        
+            print(f"\nLongest Flow Window: {flow_duration}s starting at {flow_start}")
+
         # Save summary to file
         with open(LOG_FILE, "a", encoding="utf-8") as f:
-            f.write("\\n" + "="*60 + "\\n")
-            f.write("SESSION SUMMARY\\n")
-            f.write("="*60 + "\\n")
-            f.write(f"Duration: {timedelta(seconds=int(session_duration))}\\n")
-            f.write(f"Total cycles: {total_cycles}\\n\\n")
-            f.write("State Distribution:\\n")
-            
+            f.write("\n" + "="*60 + "\n")
+            f.write("SESSION SUMMARY\n")
+            f.write("="*60 + "\n")
+            f.write(f"Duration: {timedelta(seconds=int(session_duration))}\n")
+            f.write(f"Total cycles: {total_cycles}\n\n")
+            f.write("State Distribution:\n")
+
             for state, percentage in state_percentages.items():
-                f.write(f"  {state.ljust(16)}: {percentage:5.1f}%\\n")
-            
+                f.write(f"  {state.ljust(16)}: {percentage:5.1f}%\n")
+
             if longest_flow:
                 flow_start = longest_flow[0]["timestamp"].strftime('%H:%M:%S')
                 flow_duration = len(longest_flow) * 30
-                f.write(f"\\nLongest Flow Window: {flow_duration}s starting at {flow_start}\\n")
+                f.write(f"\nLongest Flow Window: {flow_duration}s starting at {flow_start}\n")
     
     def _find_flow_windows(self) -> List[List[Dict[str, Any]]]:
         """Find all continuous flow state windows."""

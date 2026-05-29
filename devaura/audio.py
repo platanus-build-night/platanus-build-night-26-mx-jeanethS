@@ -62,7 +62,7 @@ class AudioEngine:
             wave *= envelope
             
             # Apply tremolo
-            tremolo = 1 + self.tremolo_depth * np.sin(2 * np.pi * self.tremolo_freq * time_array)
+            tremolo = self._create_tremolo(time_array)
             wave *= tremolo
             
             # Add to stereo buffer (slight panning for depth)
@@ -114,6 +114,10 @@ class AudioEngine:
             envelope[-release_samples:] = np.linspace(self.sustain_level, 0, release_samples)
         
         return envelope
+    
+    def _create_tremolo(self, time_array: np.ndarray) -> np.ndarray:
+        """Create tremolo LFO array."""
+        return 1 + self.tremolo_depth * np.sin(2 * np.pi * self.tremolo_freq * time_array)
     
     def create_sound_from_state(self, state: str) -> pygame.mixer.Sound:
         """Create a pygame Sound object for a given cognitive state."""
