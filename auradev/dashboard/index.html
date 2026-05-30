@@ -959,20 +959,86 @@
     }
 
     function setupNavHighlight() {
+      const main = document.querySelector("main");
       const links = document.querySelectorAll("[data-nav]");
-      const sections = [...links].map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const id = entry.target.id;
-          links.forEach((link) => {
-            const active = link.dataset.nav === id;
-            link.classList.toggle("nav-active", active);
-            link.classList.toggle("text-on-surface-variant", !active);
-          });
+      const sections = [...new Set(
+        [...links].map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean)
+      )];
+      let navLockUntil = 0;
+      let lockedNavId = null;
+      let scrollRaf = null;
+
+      function setActiveNav(id) {
+        links.forEach((link) => {
+          const active = link.dataset.nav === id;
+          link.classList.toggle("nav-active", active);
+          link.classList.toggle("text-on-surface-variant", !active);
+          const icon = link.querySelector(".material-symbols-outlined");
+          if (icon) icon.style.fontVariationSettings = `'FILL' ${active ? 1 : 0}`;
         });
-      }, { rootMargin: "-20% 0px -60% 0px", threshold: 0 });
-      sections.forEach((s) => observer.observe(s));
+      }
+
+      function getActiveSectionId() {
+        const mainRect = main.getBoundingClientRect();
+        const trigger = mainRect.top + 120;
+        const nearBottom = main.scrollHeight - main.scrollTop - main.clientHeight < 80;
+        if (nearBottom) return sections[sections.length - 1].id;
+
+        let activeId = sections[0].id;
+        for (const section of sections) {
+          if (section.getBoundingClientRect().top <= trigger) activeId = section.id;
+        }
+        return activeId;
+      }
+
+      function updateActiveFromScroll() {
+        if (Date.now() < navLockUntil) {
+          if (lockedNavId) setActiveNav(lockedNavId);
+          return;
+        }
+        lockedNavId = null;
+        setActiveNav(getActiveSectionId());
+      }
+
+      function scrollToSection(section) {
+        if (!main) {
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+          return;
+        }
+        const offset = section.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+        main.scrollTo({ top: Math.max(0, offset - 8), behavior: "smooth" });
+      }
+
+      links.forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const section = document.getElementById(link.dataset.nav);
+          if (!section) return;
+          lockedNavId = link.dataset.nav;
+          navLockUntil = Date.now() + 1200;
+          setActiveNav(lockedNavId);
+          history.replaceState(null, "", `#${link.dataset.nav}`);
+          scrollToSection(section);
+        });
+      });
+
+      main.addEventListener("scroll", () => {
+        if (scrollRaf) return;
+        scrollRaf = requestAnimationFrame(() => {
+          scrollRaf = null;
+          updateActiveFromScroll();
+        });
+      }, { passive: true });
+
+      const initial = location.hash.replace("#", "");
+      if (initial && document.getElementById(initial)) {
+        requestAnimationFrame(() => {
+          setActiveNav(initial);
+          scrollToSection(document.getElementById(initial));
+        });
+      } else {
+        updateActiveFromScroll();
+      }
     }
 
     function initDashboard() {
