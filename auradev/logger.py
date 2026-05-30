@@ -16,6 +16,11 @@ from typing import Dict, Any, List
 from config import LOG_FILE
 from database import save_cycle
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 class SessionLogger:
     def __init__(self, session_id: str = None):

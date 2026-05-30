@@ -1,0 +1,7 @@
+# Server-only dependencies (no desktop/audio libs)
+anthropic
+psutil
+requests
+google-auth
+fastapi
+uvicorn[standard]
