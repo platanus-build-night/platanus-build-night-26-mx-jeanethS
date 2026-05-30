@@ -427,11 +427,11 @@
     const STATES = ["flow", "stuck", "debugging", "reviewing", "context_switching"];
 
     const STATE_META = {
-      flow: { label: "Flow", color: "#b2c5ff", textClass: "text-secondary-container" },
-      stuck: { label: "Stuck", color: "#ffdad6", textClass: "text-error" },
-      debugging: { label: "Debug", color: "#dae2ff", textClass: "text-secondary" },
-      reviewing: { label: "Review", color: "#fbd7fd", textClass: "text-tertiary" },
-      context_switching: { label: "Context", color: "#e8dff0", textClass: "text-outline" },
+      flow: { label: "Flow", color: "#b2c5ff", textClass: "text-secondary-container", headlineColor: "#0d193d" },
+      stuck: { label: "Stuck", color: "#ffdad6", textClass: "text-error", headlineColor: "#93000a" },
+      debugging: { label: "Debug", color: "#dae2ff", textClass: "text-secondary", headlineColor: "#1a3a6b" },
+      reviewing: { label: "Review", color: "#fbd7fd", textClass: "text-tertiary", headlineColor: "#29132e" },
+      context_switching: { label: "Context", color: "#e8dff0", textClass: "text-outline", headlineColor: "#1e1a25" },
     };
 
     let isLive = false;
@@ -551,7 +551,7 @@
       }
       const meta = STATE_META[cycle.state] || STATE_META.reviewing;
       $("current-state").textContent = meta.label.toUpperCase();
-      $("current-state").style.color = meta.color;
+      $("current-state").style.color = meta.headlineColor;
       const conf = Math.round((cycle.confidence || 0) * 100);
       $("current-confidence").textContent = `${conf}%`;
       $("live-reason").textContent = cycle.reason || "No reason recorded.";

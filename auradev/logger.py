@@ -70,7 +70,7 @@ class SessionLogger:
             f"\n"
             f"{self.bold}╔══════════════════════════════════════════════════════════╗{self.reset_color}\n"
             f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
-            f"{self.bold}║{self.reset_color}        ♪    ∿  D E V A U R A  ∿    ♪                       {self.bold}║{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}        ♪    ∿  A U R A D E V  ∿    ♪                       {self.bold}║{self.reset_color}\n"
             f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
             f"{self.bold}║{self.reset_color}        Ambient Music Engine for Developers                 {self.bold}║{self.reset_color}\n"
             f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
