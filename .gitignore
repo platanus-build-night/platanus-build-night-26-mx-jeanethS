@@ -71,3 +71,7 @@ Thumbs.db
 
 # Cursor IDE
 .cursor/
+
+# Local docs (not for repo)
+CLAUDE.md
+SECURITY.md

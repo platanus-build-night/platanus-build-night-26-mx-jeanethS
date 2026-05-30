@@ -961,9 +961,9 @@
     function setupNavHighlight() {
       const main = document.querySelector("main");
       const links = document.querySelectorAll("[data-nav]");
-      const sections = [...new Set(
-        [...links].map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean)
-      )];
+      const sections = ["focus", "sessions", "insights", "habits"]
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
       let navLockUntil = 0;
       let lockedNavId = null;
       let scrollRaf = null;
@@ -978,35 +978,62 @@
         });
       }
 
-      function getActiveSectionId() {
-        const mainRect = main.getBoundingClientRect();
-        const trigger = mainRect.top + 120;
-        const nearBottom = main.scrollHeight - main.scrollTop - main.clientHeight < 80;
-        if (nearBottom) return sections[sections.length - 1].id;
+      function sectionScrollTop(section) {
+        return section.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+      }
 
+      function visibleSectionRatio(section) {
+        const mainRect = main.getBoundingClientRect();
+        const rect = section.getBoundingClientRect();
+        const visible = Math.min(rect.bottom, mainRect.bottom) - Math.max(rect.top, mainRect.top);
+        if (visible <= 0) return 0;
+        return visible / Math.min(rect.height, mainRect.height);
+      }
+
+      function getActiveSectionId() {
+        const hashId = location.hash.replace("#", "");
+        if (hashId) {
+          const hashSection = document.getElementById(hashId);
+          if (hashSection && visibleSectionRatio(hashSection) >= 0.15) return hashId;
+        }
+
+        const last = sections[sections.length - 1];
+        const lastTop = sectionScrollTop(last);
+        if (main.scrollTop + main.clientHeight >= lastTop + 32) return last.id;
+
+        const marker = main.scrollTop + Math.min(180, main.clientHeight * 0.35);
         let activeId = sections[0].id;
         for (const section of sections) {
-          if (section.getBoundingClientRect().top <= trigger) activeId = section.id;
+          if (sectionScrollTop(section) <= marker) activeId = section.id;
         }
         return activeId;
       }
 
       function updateActiveFromScroll() {
-        if (Date.now() < navLockUntil) {
-          if (lockedNavId) setActiveNav(lockedNavId);
+        if (Date.now() < navLockUntil && lockedNavId) {
+          setActiveNav(lockedNavId);
           return;
         }
         lockedNavId = null;
-        setActiveNav(getActiveSectionId());
+        const id = getActiveSectionId();
+        setActiveNav(id);
+        const hash = location.hash.replace("#", "");
+        if (hash !== id) {
+          history.replaceState(null, "", id === sections[0].id ? `${location.pathname}${location.search}` : `#${id}`);
+        }
       }
 
       function scrollToSection(section) {
+        const header = main.querySelector("header");
+        const headerHeight = header ? header.offsetHeight : 0;
+        let top = sectionScrollTop(section) - headerHeight - 8;
+        const maxTop = main.scrollHeight - main.clientHeight;
+        top = Math.min(Math.max(0, top), maxTop);
         if (!main) {
           section.scrollIntoView({ behavior: "smooth", block: "start" });
           return;
         }
-        const offset = section.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
-        main.scrollTo({ top: Math.max(0, offset - 8), behavior: "smooth" });
+        main.scrollTo({ top, behavior: "smooth" });
       }
 
       links.forEach((link) => {
@@ -1015,7 +1042,7 @@
           const section = document.getElementById(link.dataset.nav);
           if (!section) return;
           lockedNavId = link.dataset.nav;
-          navLockUntil = Date.now() + 1200;
+          navLockUntil = Date.now() + 1500;
           setActiveNav(lockedNavId);
           history.replaceState(null, "", `#${link.dataset.nav}`);
           scrollToSection(section);
@@ -1033,6 +1060,8 @@
       const initial = location.hash.replace("#", "");
       if (initial && document.getElementById(initial)) {
         requestAnimationFrame(() => {
+          lockedNavId = initial;
+          navLockUntil = Date.now() + 1500;
           setActiveNav(initial);
           scrollToSection(document.getElementById(initial));
         });
