@@ -35,6 +35,7 @@ class DevAura:
     ):
         self.demo_mode = demo_mode
         self.running = False
+        self._stopped = False
         self.demo_state_index = 0
         self.cycle_count = 0
 
@@ -70,8 +71,7 @@ class DevAura:
     def _signal_handler(self, signum, frame):
         """Handle Ctrl+C gracefully."""
         print("\nShutting down DevAura...")
-        self.stop()
-        sys.exit(0)
+        self.running = False
 
     def start(self):
         """Start the main application loop."""
@@ -123,14 +123,20 @@ class DevAura:
                     break
 
                 # Wait for next sample
-                time.sleep(self.sample_interval)
+                self._interruptible_sleep(self.sample_interval)
 
             except KeyboardInterrupt:
                 break
             except Exception as e:
                 print(f"Error in cycle: {e}")
                 # Continue running despite errors
-                time.sleep(self.sample_interval)
+                self._interruptible_sleep(self.sample_interval)
+
+    def _interruptible_sleep(self, seconds: float) -> None:
+        """Sleep in short chunks so Ctrl+C can stop without racing cleanup."""
+        end = time.time() + seconds
+        while self.running and time.time() < end:
+            time.sleep(min(0.5, max(0.0, end - time.time())))
 
     def _get_demo_metrics(self) -> Dict[str, Any]:
         """Generate fake metrics for demo mode."""
@@ -187,6 +193,9 @@ class DevAura:
 
     def stop(self):
         """Stop the application and cleanup resources."""
+        if self._stopped:
+            return
+        self._stopped = True
         self.running = False
 
         # Stop telemetry collection
@@ -224,6 +233,17 @@ def main():
         default=None,
         help="Maximum number of cycles to run (default: unlimited, demo: 3)"
     )
+    parser.add_argument(
+        "--no-drums",
+        action="store_true",
+        help="Disable drum beats (melody only)"
+    )
+    parser.add_argument(
+        "--drum-volume",
+        type=float,
+        default=0.4,
+        help="Drum volume relative to melody (0.0-1.0, default: 0.4)"
+    )
 
     args = parser.parse_args()
 
@@ -237,6 +257,13 @@ def main():
         sample_interval=interval,
         max_cycles=args.max_cycles
     )
+    
+    # Configure audio
+    if hasattr(app.audio_engine, 'set_drums_enabled'):
+        app.audio_engine.set_drums_enabled(not args.no_drums)
+    if hasattr(app.audio_engine, 'set_drum_volume'):
+        app.audio_engine.set_drum_volume(args.drum_volume)
+    
     app.start()
 
 
