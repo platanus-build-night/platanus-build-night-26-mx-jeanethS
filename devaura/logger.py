@@ -1,11 +1,13 @@
 """
 Session Logger Module for DevAura
 
-Handles terminal output with ANSI colors and file logging.
+Handles terminal output with ANSI colors, ASCII visuals, and file logging.
 Tracks session statistics and generates final summaries.
 """
 
+import math
 import os
+import random
 import time
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
@@ -16,7 +18,7 @@ class SessionLogger:
     def __init__(self):
         self.session_entries: List[Dict[str, Any]] = []
         self.session_start_time = time.time()
-        
+
         # ANSI color codes for terminal output
         self.state_colors = {
             "flow": "\033[92m",              # Green
@@ -26,15 +28,85 @@ class SessionLogger:
             "context_switching": "\033[95m", # Magenta
         }
         self.reset_color = "\033[0m"
+        self.bold = "\033[1m"
+        self.dim = "\033[2m"
+
+        # State-specific ASCII icons
+        self.state_icons = {
+            "flow": "~[O]~",
+            "stuck": "[???]",
+            "debugging": "[:*:]",
+            "reviewing": "(o_o)",
+            "context_switching": "<==>",
+        }
+
+        # Spectrum characters for waveform visualizer
+        self.spectrum_chars = " ▁▂▃▄▅▆▇█"
 
         # Clear/create log file
         with open(LOG_FILE, "w") as f:
             f.write(f"DevAura Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
-    
+
+        self._print_logo()
+
+    def _print_logo(self):
+        """Print a fancy ASCII startup banner."""
+        logo = (
+            f"\n"
+            f"{self.bold}╔══════════════════════════════════════════════════════════╗{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}        ♪    ∿  D E V A U R A  ∿    ♪                       {self.bold}║{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}        Ambient Music Engine for Developers                 {self.bold}║{self.reset_color}\n"
+            f"{self.bold}║{self.reset_color}                                                          {self.bold}║{self.reset_color}\n"
+            f"{self.bold}╚══════════════════════════════════════════════════════════╝{self.reset_color}\n"
+        )
+        print(logo)
+
+    def _generate_waveform(self, state: str, width: int = 52) -> str:
+        """Generate a pseudo-spectrum waveform based on cognitive state."""
+        chars = self.spectrum_chars
+        wave = []
+        seed = hash(state) % 10000
+        rng = random.Random(seed)
+
+        for i in range(width):
+            if state == "flow":
+                val = 0.5 + 0.4 * math.sin(i * 0.35 + seed * 0.01)
+            elif state == "stuck":
+                val = 0.2 + 0.5 * abs(math.sin(i * 1.2 + seed * 0.1)) * (0.5 + 0.5 * math.cos(i * 3.7))
+            elif state == "debugging":
+                spike = max(0, math.sin(i * 0.6 + seed) * math.cos(i * 2.1))
+                val = 0.15 + 0.7 * spike
+            elif state == "reviewing":
+                val = 0.25 + 0.15 * math.sin(i * 0.12 + seed)
+            else:  # context_switching
+                val = 0.3 + 0.4 * abs(math.sin(i * 0.45 + seed)) * ((i % 3) / 2.0 + 0.2)
+
+            idx = max(0, min(len(chars) - 1, int(val * (len(chars) - 1))))
+            wave.append(chars[idx])
+
+        return "".join(wave)
+
+    def _progress_bar(self, value: float, max_val: float, width: int = 20) -> str:
+        """Create a Unicode block progress bar."""
+        if max_val <= 0:
+            return "░" * width
+        filled = int((min(value, max_val) / max_val) * width)
+        filled = max(0, min(filled, width))
+        return "█" * filled + "░" * (width - filled)
+
+    def _pulse_color(self, state: str, confidence: float) -> str:
+        """Return a color with optional bold pulse for high confidence."""
+        base = self.state_colors.get(state, "")
+        if confidence > 0.85:
+            return base + self.bold
+        return base
+
     def log_cycle(self, metrics: Dict[str, Any], classification: Dict[str, Any]):
         """Log a single collection cycle to terminal and file."""
         timestamp = datetime.now()
-        
+
         # Create entry
         entry = {
             "timestamp": timestamp,
@@ -42,23 +114,30 @@ class SessionLogger:
             "classification": classification.copy(),
         }
         self.session_entries.append(entry)
-        
-        # Terminal output with colors
+
+        # Terminal output with rich visuals
         state = classification["state"]
         confidence = classification["confidence"]
         reason = classification["reason"]
-        
-        color = self.state_colors.get(state, "")
-        state_display = f"{color}{state.upper()}{self.reset_color}"
-        
-        print(f"[{timestamp.strftime('%H:%M:%S')}] {state_display} "
-              f"(conf: {confidence:.2f}) | "
-              f"WPM: {metrics['wpm']:.1f} | "
-              f"Backspace: {metrics['backspace_ratio']:.2f} | "
-              f"Window: {metrics['active_window'][:30]}")
-        print(f"  → {reason}")
-        
-        # File logging
+
+        color = self._pulse_color(state, confidence)
+        icon = self.state_icons.get(state, "◆")
+
+        print(f"\n{'═'*60}")
+        print(f" {icon}  {color}{state.upper()}{self.reset_color}  "
+              f"confidence: {color}{confidence:.0%}{self.reset_color}")
+        print(f" {' '*4}∿ {self._generate_waveform(state)} ∿")
+        print(f" {' '*4}→ {reason}")
+        print(f"{'─'*60}")
+        print(f"  WPM        {self._progress_bar(metrics['wpm'], 120)} {metrics['wpm']:>6.1f}")
+        print(f"  Backspace  {self._progress_bar(metrics['backspace_ratio'] * 100, 50)} {metrics['backspace_ratio']:>6.2f}")
+        print(f"  CPU        {self._progress_bar(metrics['cpu_percent'], 100)} {metrics['cpu_percent']:>6.1f}%")
+        print(f"  Idle       {self._progress_bar(metrics['idle_seconds'], 60)} {metrics['idle_seconds']:>6.1f}s")
+        print(f"  Switches   {self._progress_bar(metrics['window_switches'], 20)} {metrics['window_switches']:>6}")
+        print(f"  Window     {metrics['active_window'][:42]}")
+        print(f"{'═'*60}")
+
+        # File logging (unchanged format)
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {state.upper()} "
                    f"(confidence: {confidence:.2f})\n")
@@ -70,38 +149,39 @@ class SessionLogger:
                    f"Switches={metrics['window_switches']}\n")
             f.write(f"  Window: {metrics['active_window']}\n")
             f.write(f"  Reason: {reason}\n\n")
-    
+
     def print_session_summary(self):
         """Print final session statistics and save to file."""
         if not self.session_entries:
             print("No session data to summarize.")
             return
-        
+
         session_duration = time.time() - self.session_start_time
         total_cycles = len(self.session_entries)
-        
+
         # Calculate state percentages
         state_counts = {}
         for entry in self.session_entries:
             state = entry["classification"]["state"]
             state_counts[state] = state_counts.get(state, 0) + 1
-        
+
         state_percentages = {
-            state: (count / total_cycles) * 100 
+            state: (count / total_cycles) * 100
             for state, count in state_counts.items()
         }
-        
+
         # Find longest continuous flow window
         flow_windows = self._find_flow_windows()
         longest_flow = max(flow_windows, key=len) if flow_windows else []
-        
+
         # Format summary
-        print("\n" + "="*60)
-        print("SESSION SUMMARY")
-        print("="*60)
-        print(f"Duration: {timedelta(seconds=int(session_duration))}")
-        print(f"Total cycles: {total_cycles}")
-        print("\nState Distribution:")
+        print(f"\n{'╔' + '═'*58 + '╗'}")
+        print(f"{'║' + ' '*20 + 'SESSION SUMMARY' + ' '*23 + '║'}")
+        print(f"{'╠' + '═'*58 + '╣'}")
+        print(f"  Duration:    {timedelta(seconds=int(session_duration))}")
+        print(f"  Total cycles: {total_cycles}")
+        print(f"{'─'*60}")
+        print("  State Distribution:")
 
         for state in ["flow", "stuck", "debugging", "reviewing", "context_switching"]:
             if state in state_percentages:
@@ -114,7 +194,10 @@ class SessionLogger:
         if longest_flow:
             flow_start = longest_flow[0]["timestamp"].strftime('%H:%M:%S')
             flow_duration = len(longest_flow) * 30  # 30 second intervals
-            print(f"\nLongest Flow Window: {flow_duration}s starting at {flow_start}")
+            print(f"{'─'*60}")
+            print(f"  ✦ Longest Flow Window: {flow_duration}s starting at {flow_start}")
+
+        print(f"{'╚' + '═'*58 + '╝'}")
 
         # Save summary to file
         with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -132,12 +215,12 @@ class SessionLogger:
                 flow_start = longest_flow[0]["timestamp"].strftime('%H:%M:%S')
                 flow_duration = len(longest_flow) * 30
                 f.write(f"\nLongest Flow Window: {flow_duration}s starting at {flow_start}\n")
-    
+
     def _find_flow_windows(self) -> List[List[Dict[str, Any]]]:
         """Find all continuous flow state windows."""
         windows = []
         current_window = []
-        
+
         for entry in self.session_entries:
             if entry["classification"]["state"] == "flow":
                 current_window.append(entry)
@@ -145,9 +228,9 @@ class SessionLogger:
                 if current_window:
                     windows.append(current_window)
                     current_window = []
-        
+
         # Add final window if it ends in flow
         if current_window:
             windows.append(current_window)
-        
+
         return windows
