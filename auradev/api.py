@@ -8,8 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from database import get_all_sessions, get_session_cycles, get_insights, get_habits
+from database import get_all_sessions, get_session_cycles, get_insights, get_habits, init_db
 from config import API_PORT
+
+# Initialize database on startup
+init_db()
 
 DASHBOARD_DIR = Path(__file__).resolve().parent / "dashboard"
 
