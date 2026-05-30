@@ -1,4 +1,4 @@
-# DevAura
+# auradev
 
 Ambient music engine that samples developer behavioral telemetry every 30 seconds, classifies cognitive state via Claude, and plays procedurally generated music matching that state — all in pure Python, silently in the background.
 
@@ -14,7 +14,7 @@ Ambient music engine that samples developer behavioral telemetry every 30 second
 
 ## Cognitive States
 
-DevAura recognizes five distinct developer cognitive states, each with its own sound and rhythm:
+auradev recognizes five distinct developer cognitive states, each with its own sound and rhythm:
 
 | State | Sound | BPM | Rhythm |
 |-------|-------|-----|--------|
@@ -28,7 +28,7 @@ DevAura recognizes five distinct developer cognitive states, each with its own s
 
 1. **Clone and navigate to the project:**
    ```bash
-   cd devaura
+   cd auradev
    ```
 
 2. **Create a Python 3.13 virtual environment (recommended):**
@@ -123,7 +123,7 @@ python main.py --demo --drum-volume 0.7
 ## Project Structure
 
 ```
-devaura/
+auradev/
 ├── main.py           # Main application entry point
 ├── collector.py      # Telemetry collection (keyboard, mouse, system)
 ├── classifier.py     # Claude API integration for state classification
@@ -136,7 +136,7 @@ devaura/
 
 ## Audio Design
 
-DevAura generates all audio procedurally using:
+auradev generates all audio procedurally using:
 - **Layered oscillators**: Sine + triangle waves with harmonic overtones
 - **ADSR envelopes**: 0.5s attack for pad-like sound
 - **Tremolo & pulse LFO**: Subtle rhythmic movement synced to BPM
@@ -167,7 +167,7 @@ Each state has a unique 16-step drum pattern:
 
 ## Session Logging
 
-DevAura creates detailed session logs including:
+auradev creates detailed session logs including:
 - Real-time colored terminal output with ASCII visualizations
 - Persistent session file (`session.log`)
 - Final session summary with state percentages
@@ -181,7 +181,7 @@ ANTHROPIC_API_KEY=your_claude_api_key_here
 
 ## Demo Script
 
-1. Start DevAura: `python main.py --demo`
+1. Start auradev: `python main.py --demo`
 2. Watch the ASCII dashboard showing live state changes
 3. Listen to audio and drum transitions between cognitive states
 4. Stop with Ctrl+C to see session summary

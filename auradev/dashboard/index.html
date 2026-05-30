@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AURADEV - Focus Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="config.js"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed-variant": "#3a456b",
+            "primary-container": "#434e74",
+            "on-tertiary-container": "#d9b8dc",
+            "on-secondary-container": "#3e5184",
+            "error-container": "#ffdad6",
+            primary: "#2c375c",
+            "on-primary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "on-surface-variant": "#45464e",
+            outline: "#76767f",
+            "on-tertiary": "#ffffff",
+            "primary-fixed-dim": "#bac5f2",
+            "secondary-fixed": "#dae2ff",
+            "tertiary-fixed-dim": "#ddbce0",
+            "on-secondary-fixed": "#001848",
+            "tertiary-fixed": "#fbd7fd",
+            "surface-dim": "#e0d7e8",
+            "inverse-on-surface": "#f7edff",
+            "on-error-container": "#93000a",
+            "surface-bright": "#fef7ff",
+            "inverse-primary": "#bac5f2",
+            "primary-fixed": "#dbe1ff",
+            "on-primary-fixed": "#0d193d",
+            "surface-container-low": "#f9f1ff",
+            "on-tertiary-fixed-variant": "#573e5b",
+            "on-secondary": "#ffffff",
+            "tertiary-container": "#614765",
+            "on-background": "#1e1a25",
+            "secondary-container": "#b2c5ff",
+            "on-surface": "#1e1a25",
+            "surface-variant": "#e8dff0",
+            "outline-variant": "#c6c6cf",
+            "on-secondary-fixed-variant": "#314577",
+            "surface-tint": "#525d84",
+            tertiary: "#49304d",
+            "on-error": "#ffffff",
+            "surface-container": "#f4eafc",
+            error: "#ba1a1a",
+            "secondary-fixed-dim": "#b2c5ff",
+            background: "#fef7ff",
+            "surface-container-high": "#eee5f6",
+            "on-primary-container": "#b5c0ed",
+            secondary: "#4a5d90",
+            "on-tertiary-fixed": "#29132e",
+            surface: "#fef7ff",
+            "inverse-surface": "#332e3b",
+            "surface-container-highest": "#e8dff0",
+            mauve: "#ae8fb1",
+            navy: "#434e74",
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            full: "9999px",
+          },
+          spacing: {
+            "margin-mobile": "16px",
+            "container-max": "1280px",
+            gutter: "24px",
+            "margin-desktop": "48px",
+            unit: "8px",
+          },
+          fontFamily: {
+            "headline-lg": ["Anton", "sans-serif"],
+            "headline-lg-mobile": ["Anton", "sans-serif"],
+            "label-caps": ["JetBrains Mono", "monospace"],
+            "display-lg": ["Anton", "sans-serif"],
+            "body-lg": ["Hanken Grotesk", "sans-serif"],
+            "body-md": ["Hanken Grotesk", "sans-serif"],
+            "title-md": ["Hanken Grotesk", "sans-serif"],
+            "code-sm": ["JetBrains Mono", "monospace"],
+          },
+          fontSize: {
+            "headline-lg": ["48px", { lineHeight: "52px", letterSpacing: "0.01em", fontWeight: "400" }],
+            "headline-lg-mobile": ["32px", { lineHeight: "36px", fontWeight: "400" }],
+            "label-caps": ["12px", { lineHeight: "16px", fontWeight: "700" }],
+            "display-lg": ["96px", { lineHeight: "90px", letterSpacing: "-0.02em", fontWeight: "400" }],
+            "body-lg": ["18px", { lineHeight: "26px", fontWeight: "400" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "title-md": ["20px", { lineHeight: "28px", fontWeight: "700" }],
+            "code-sm": ["14px", { lineHeight: "20px", fontWeight: "500" }],
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    .brutalist-border { border: 2px solid #2c375c; }
+    .brutalist-shadow-primary { box-shadow: 4px 4px 0 0 #2c375c; }
+    .brutalist-shadow-mauve { box-shadow: 4px 4px 0 0 #49304d; }
+    .brutalist-button {
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .brutalist-button:hover { transform: translate(-1px, -1px); }
+    .brutalist-button:active {
+      transform: translate(4px, 4px);
+      box-shadow: 0 0 0 0 #2c375c;
+    }
+    .brutalist-button:focus-visible {
+      outline: 2px solid #2c375c;
+      outline-offset: 2px;
+    }
+    @keyframes pulse-gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .bg-waveform-pulse {
+      background: linear-gradient(270deg, #dae2ff, #fbd7fd);
+      background-size: 200% 200%;
+      animation: pulse-gradient 3s ease infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bg-waveform-pulse { animation: none; }
+    }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #fef7ff; border-left: 1px solid #e8dff0; }
+    ::-webkit-scrollbar-thumb { background: #bac5f2; }
+    ::-webkit-scrollbar-thumb:hover { background: #b2c5ff; }
+    html { scroll-behavior: smooth; }
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .skeleton {
+      background: linear-gradient(90deg, #eee5f6 25%, #f9f1ff 50%, #eee5f6 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton { animation: none; background: #eee5f6; }
+    }
+    .nav-active {
+      background: #b2c5ff;
+      color: #2c375c;
+      border: 2px solid #2c375c;
+      box-shadow: 4px 4px 0 0 #2c375c;
+    }
+    .session-row-active { background: #dae2ff !important; }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-[100dvh] h-[100dvh] flex overflow-hidden">
+  <a href="#focus" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:bg-primary focus:text-on-primary focus:px-3 focus:py-2">Skip to content</a>
+
+  <nav class="md:hidden fixed top-0 w-full z-50 bg-surface border-b-2 border-primary-container h-16 flex justify-between items-center px-margin-mobile" aria-label="Mobile header">
+    <div class="font-headline-lg-mobile text-headline-lg-mobile uppercase tracking-tighter text-primary">AURADEV</div>
+    <div id="mobile-live-dot" class="flex items-center gap-2 font-label-caps text-[10px] text-primary">
+      <span class="w-2 h-2 rounded-full bg-error animate-pulse" aria-hidden="true"></span>
+      <span id="mobile-status">Connecting</span>
+    </div>
+  </nav>
+
+  <aside class="hidden md:flex flex-col gap-gutter p-gutter bg-surface-container-low h-full w-64 border-r-2 border-primary-container shrink-0 z-40">
+    <div class="flex flex-col gap-unit mb-margin-desktop">
+      <div class="font-headline-lg text-headline-lg text-primary tracking-tighter uppercase leading-none">AURADEV</div>
+      <div id="sidebar-mode" class="text-on-surface-variant font-label-caps text-label-caps mt-1 flex items-center gap-2">
+        <span id="sidebar-dot" class="w-2 h-2 bg-outline rounded-full" aria-hidden="true"></span>
+        <span id="sidebar-status">Connecting to API</span>
+      </div>
+    </div>
+    <nav class="flex flex-col gap-unit flex-1" aria-label="Dashboard sections">
+      <a class="nav-active font-label-caps text-label-caps flex items-center gap-unit p-unit rounded-DEFAULT transition-transform hover:translate-x-1 duration-75" href="#focus" data-nav="focus">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">center_focus_strong</span>
+        Focus
+      </a>
+      <a class="text-on-surface-variant flex items-center gap-unit p-unit font-label-caps text-label-caps rounded-DEFAULT hover:translate-x-1 hover:text-primary transition-transform duration-75" href="#sessions" data-nav="sessions">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+        Sessions
+      </a>
+      <a class="text-on-surface-variant flex items-center gap-unit p-unit font-label-caps text-label-caps rounded-DEFAULT hover:translate-x-1 hover:text-primary transition-transform duration-75" href="#insights" data-nav="insights">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+        Insights
+      </a>
+      <a class="text-on-surface-variant flex items-center gap-unit p-unit font-label-caps text-label-caps rounded-DEFAULT hover:translate-x-1 hover:text-primary transition-transform duration-75" href="#habits" data-nav="habits">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+        Habits
+      </a>
+    </nav>
+    <button type="button" id="refresh-btn" class="mt-gutter w-full bg-primary text-on-primary font-label-caps text-label-caps py-2 px-4 brutalist-border brutalist-shadow-mauve brutalist-button rounded-DEFAULT">
+      Refresh data
+    </button>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-full overflow-y-auto mt-16 md:mt-0 relative scroll-smooth">
+    <header class="hidden md:flex justify-between items-center p-gutter border-b-2 border-primary-container bg-surface sticky top-0 z-30">
+      <div class="font-title-md text-title-md text-primary">Dashboard</div>
+      <div class="flex items-center gap-gutter">
+        <label class="relative">
+          <span class="sr-only">Search sessions</span>
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
+          <input id="session-search" class="bg-surface-container text-on-surface font-label-caps text-label-caps pl-10 pr-4 py-2 brutalist-border rounded-DEFAULT focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64" placeholder="Filter sessions..." type="search" />
+        </label>
+        <div id="api-pill" class="font-label-caps text-[10px] px-3 py-1 brutalist-border rounded-full bg-surface-container-highest text-on-surface-variant tabular-nums">
+          API: checking...
+        </div>
+      </div>
+    </header>
+
+    <div id="error-banner" class="hidden mx-margin-mobile md:mx-gutter mt-gutter p-unit bg-error-container text-on-error-container brutalist-border rounded-DEFAULT font-code-sm text-sm" role="alert"></div>
+
+    <div class="p-margin-mobile md:p-gutter flex flex-col gap-gutter max-w-container-max mx-auto w-full pb-24 md:pb-gutter">
+      <div class="flex flex-col gap-gutter scroll-mt-24" id="focus">
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <div class="lg:col-span-5 bg-secondary-fixed p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-waveform-pulse opacity-30 rounded-full blur-3xl z-0" aria-hidden="true"></div>
+            <div class="relative z-10">
+              <div id="live-badge" class="inline-flex items-center gap-2 bg-surface text-primary font-label-caps text-[10px] px-2 py-1 brutalist-border rounded-full mb-6">
+                <span id="live-dot" class="w-2 h-2 rounded-full bg-outline" aria-hidden="true"></span>
+                <span id="live-label">CONNECTING</span>
+              </div>
+              <h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary uppercase leading-tight mb-2 text-balance">Your focus has states</h1>
+              <p id="live-reason" class="font-body-lg text-body-lg text-on-surface-variant max-w-md">Waiting for the first classification cycle from AURADEV.</p>
+            </div>
+            <div class="mt-8 relative z-10 flex flex-wrap items-end gap-4">
+              <div>
+                <div class="font-label-caps text-[10px] text-on-surface-variant mb-1">Current state</div>
+                <div id="current-state" class="font-headline-lg text-headline-lg text-primary uppercase tabular-nums">—</div>
+              </div>
+              <div>
+                <div class="font-label-caps text-[10px] text-on-surface-variant mb-1">Confidence</div>
+                <div id="current-confidence" class="font-title-md text-primary tabular-nums">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 bg-surface-container-lowest p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b-2 border-primary-container pb-2">
+              <div class="font-label-caps text-label-caps text-primary">Session visualizer</div>
+              <div id="cycle-count-label" class="font-code-sm text-xs text-on-surface-variant tabular-nums">0 cycles</div>
+            </div>
+            <div class="flex-1 bg-surface-variant brutalist-border rounded-DEFAULT overflow-hidden relative min-h-[300px]">
+              <canvas class="w-full h-full absolute inset-0" id="pixel-canvas" aria-label="Pixel grid of cognitive states"></canvas>
+              <div id="canvas-empty" class="absolute inset-0 flex items-center justify-center font-label-caps text-label-caps text-on-surface-variant p-gutter text-center hidden">
+                No cycle data yet. Run <code class="font-code-sm">python auradev/main.py --demo</code> to populate the grid.
+              </div>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-4 pt-2" id="state-legend"></div>
+          </div>
+
+          <div class="lg:col-span-12 bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col md:flex-row items-center justify-between gap-gutter">
+            <div class="flex flex-col gap-2 min-w-[200px]">
+              <div class="font-label-caps text-label-caps text-primary">Flow rate (active session)</div>
+              <div class="flex items-baseline gap-2">
+                <div id="focus-trend-value" class="font-headline-lg text-headline-lg text-primary tabular-nums">—</div>
+              </div>
+              <div id="focus-trend-sub" class="text-on-surface-variant text-body-md">Across loaded cycles</div>
+            </div>
+            <div class="flex-1 h-32 w-full relative">
+              <svg id="sparkline" class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 100" aria-hidden="true">
+                <defs>
+                  <linearGradient id="line-gradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ae8fb1" stop-opacity="0.3"></stop>
+                    <stop offset="100%" stop-color="#ae8fb1" stop-opacity="0"></stop>
+                  </linearGradient>
+                </defs>
+                <path id="sparkline-area" d="M0,100 L1000,100 Z" fill="url(#line-gradient)"></path>
+                <path id="sparkline-line" d="M0,100 L1000,100" fill="none" stroke="#ae8fb1" stroke-width="4"></path>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+          <div class="bg-surface p-gutter brutalist-border rounded-lg relative overflow-hidden">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-2">Flow score</div>
+            <div id="metric-flow" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary tabular-nums">—<span class="text-title-md text-outline ml-1">%</span></div>
+            <div id="metric-flow-bars" class="mt-4 h-12 w-full flex items-end gap-1"></div>
+          </div>
+          <div class="bg-surface p-gutter brutalist-border rounded-lg relative overflow-hidden">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-2">Session duration</div>
+            <div id="metric-duration" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-tertiary-container tracking-tight tabular-nums">—</div>
+            <div id="metric-wpm" class="mt-4 font-code-sm text-sm text-on-surface-variant tabular-nums">Latest WPM: —</div>
+          </div>
+          <div class="bg-surface p-gutter brutalist-border rounded-lg relative overflow-hidden">
+            <div class="font-label-caps text-label-caps text-on-surface-variant mb-2">Active days</div>
+            <div id="metric-days" class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-secondary-container tabular-nums">—<span class="font-title-md text-title-md text-outline ml-2 tracking-normal">days</span></div>
+            <div id="metric-cycles-total" class="mt-4 font-code-sm text-sm text-on-surface-variant tabular-nums">Total cycles: —</div>
+          </div>
+        </section>
+
+        <section class="bg-inverse-surface text-inverse-on-surface p-gutter brutalist-border rounded-lg font-code-sm overflow-x-auto relative" aria-label="Live telemetry">
+          <div class="absolute top-0 left-0 w-full h-8 bg-surface border-b-2 border-primary-container flex items-center px-4 gap-2" aria-hidden="true">
+            <div class="w-3 h-3 rounded-full bg-error-container brutalist-border"></div>
+            <div class="w-3 h-3 rounded-full bg-secondary-container brutalist-border"></div>
+            <div class="w-3 h-3 rounded-full bg-tertiary-container brutalist-border"></div>
+          </div>
+          <pre id="telemetry-json" class="pt-10 text-xs leading-relaxed whitespace-pre-wrap break-all">{}</pre>
+        </section>
+      </div>
+
+      <section class="mt-16 md:mt-24 pt-8 border-t-4 border-navy border-dashed scroll-mt-24 flex flex-col gap-gutter" id="sessions">
+        <h2 class="font-headline-lg-mobile md:font-headline-lg text-primary uppercase leading-tight mb-4 text-balance">Session history</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+          <div class="lg:col-span-4 bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col gap-4">
+            <h3 class="font-label-caps text-label-caps text-on-surface-variant border-b-2 border-primary-container pb-2">Recent sessions</h3>
+            <ul id="session-list" class="flex flex-col gap-2"></ul>
+            <div id="session-list-empty" class="hidden font-code-sm text-sm text-on-surface-variant py-4">No sessions stored yet.</div>
+          </div>
+          <div class="lg:col-span-8 flex flex-col gap-gutter">
+            <div class="bg-surface-container-low p-gutter brutalist-border brutalist-shadow-primary rounded-lg">
+              <h3 id="breakdown-title" class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-4">Session breakdown</h3>
+              <div id="breakdown-bars" class="flex flex-col gap-2"></div>
+              <div id="breakdown-empty" class="hidden font-code-sm text-sm text-on-surface-variant">Select a session to see state breakdown.</div>
+            </div>
+            <div class="bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg overflow-x-auto">
+              <h3 class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-4">Cycle log</h3>
+              <table class="w-full text-left font-code-sm text-sm min-w-[640px]">
+                <thead>
+                  <tr class="text-on-surface-variant border-b-2 border-surface-variant">
+                    <th class="py-2 px-4">Timestamp</th>
+                    <th class="py-2 px-4">State</th>
+                    <th class="py-2 px-4">Confidence</th>
+                    <th class="py-2 px-4">WPM</th>
+                    <th class="py-2 px-4">Active window</th>
+                  </tr>
+                </thead>
+                <tbody id="cycle-log"></tbody>
+              </table>
+              <div id="cycle-log-empty" class="hidden py-6 font-code-sm text-sm text-on-surface-variant">No cycles for this session.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-16 md:mt-24 pt-8 border-t-4 border-primary border-dashed scroll-mt-24 flex flex-col gap-gutter" id="insights">
+        <h2 class="font-headline-lg-mobile md:font-headline-lg text-primary uppercase leading-tight mb-4 text-balance">Productivity insights</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+          <div class="bg-secondary-fixed p-4 brutalist-border brutalist-shadow-mauve rounded-lg">
+            <div class="font-label-caps text-xs text-on-surface-variant">Total sessions</div>
+            <div id="ins-total-sessions" class="font-headline-lg text-primary tabular-nums skeleton h-12 rounded mt-1"></div>
+          </div>
+          <div class="bg-surface-container-highest p-4 brutalist-border brutalist-shadow-mauve rounded-lg">
+            <div class="font-label-caps text-xs text-on-surface-variant">Total cycles</div>
+            <div id="ins-total-cycles" class="font-headline-lg text-primary tabular-nums skeleton h-12 rounded mt-1"></div>
+          </div>
+          <div class="bg-secondary-container p-4 brutalist-border brutalist-shadow-mauve rounded-lg">
+            <div class="font-label-caps text-xs text-on-secondary-fixed">Avg flow</div>
+            <div id="ins-avg-flow" class="font-headline-lg text-on-secondary-fixed tabular-nums skeleton h-12 rounded mt-1"></div>
+          </div>
+          <div class="bg-tertiary-fixed p-4 brutalist-border brutalist-shadow-mauve rounded-lg">
+            <div class="font-label-caps text-xs text-on-tertiary-fixed">Avg session</div>
+            <div id="ins-avg-length" class="font-headline-lg text-on-tertiary-fixed tabular-nums skeleton h-12 rounded mt-1"></div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter mt-4">
+          <div class="bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col">
+            <h3 class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-6">WPM by cognitive state</h3>
+            <div id="wpm-bars" class="flex-1 flex flex-col justify-end gap-4"></div>
+          </div>
+          <div class="bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col">
+            <h3 class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-6">Peak flow hours</h3>
+            <div id="peak-hours" class="flex-1 relative w-full min-h-[12rem] flex items-end justify-between gap-1 px-2 pb-8 border-b-2 border-l-2 border-primary-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-16 md:mt-24 pt-8 border-t-4 border-primary border-dashed scroll-mt-24 flex flex-col gap-gutter" id="habits">
+        <h2 class="font-headline-lg-mobile md:font-headline-lg text-primary uppercase leading-tight mb-4 text-balance">Deep work habits</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+          <div class="bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg">
+            <h3 class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-6">Flow by weekday</h3>
+            <div id="flow-by-day" class="flex justify-between items-end h-48 px-2 gap-1"></div>
+          </div>
+          <div class="bg-surface p-gutter brutalist-border brutalist-shadow-primary rounded-lg flex flex-col">
+            <h3 class="font-label-caps text-label-caps text-primary border-b-2 border-primary-container pb-2 mb-4">Most flow-inducing windows</h3>
+            <div id="window-correlations" class="flex flex-col gap-3"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-margin-mobile py-2 bg-surface border-t-2 border-primary-container shadow-[0_-4px_0px_0px_rgba(44,55,92,0.1)] z-50" aria-label="Mobile navigation">
+    <a class="flex flex-col items-center justify-center nav-active rounded-lg p-2 transition-all duration-100 active:scale-90" href="#focus" data-nav="focus">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">center_focus_strong</span>
+      <span class="font-label-caps text-[10px] mt-1">Focus</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant transition-all duration-100 active:scale-90 rounded-lg" href="#sessions" data-nav="sessions">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+      <span class="font-label-caps text-[10px] mt-1">Sessions</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant transition-all duration-100 active:scale-90 rounded-lg" href="#insights" data-nav="insights">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+      <span class="font-label-caps text-[10px] mt-1">Insights</span>
+    </a>
+    <a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant transition-all duration-100 active:scale-90 rounded-lg" href="#habits" data-nav="habits">
+      <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">psychology</span>
+      <span class="font-label-caps text-[10px] mt-1">Habits</span>
+    </a>
+  </nav>
+
+  <script>
+    const POLL_MS = 30000;
+    const GRID_COLS = 80;
+    const GRID_ROWS = 40;
+    const SAMPLE_INTERVAL_SEC = 30;
+    const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+    const API_BASE = (() => {
+      const params = new URLSearchParams(window.location.search);
+      const override = params.get("api");
+      if (override) return override.replace(/\/$/, "");
+      if (window.auradev_API_URL) return window.auradev_API_URL.replace(/\/$/, "");
+      return "http://localhost:8765";
+    })();
+
+    const STATES = ["flow", "stuck", "debugging", "reviewing", "context_switching"];
+
+    const STATE_META = {
+      flow: { label: "Flow", color: "#b2c5ff", textClass: "text-secondary-container" },
+      stuck: { label: "Stuck", color: "#ffdad6", textClass: "text-error" },
+      debugging: { label: "Debug", color: "#dae2ff", textClass: "text-secondary" },
+      reviewing: { label: "Review", color: "#fbd7fd", textClass: "text-tertiary" },
+      context_switching: { label: "Context", color: "#e8dff0", textClass: "text-outline" },
+    };
+
+    let isLive = false;
+    let activeSessionId = null;
+    let activeCycles = [];
+    let allSessions = [];
+    let pixelEngine = null;
+    let pollTimer = null;
+
+    function $(id) { return document.getElementById(id); }
+
+    async function apiFetch(path) {
+      const res = await fetch(`${API_BASE}${path}`, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(`${path} returned ${res.status}`);
+      return res.json();
+    }
+
+    function parseBreakdown(raw) {
+      if (!raw) return {};
+      if (typeof raw === "string") {
+        try { return JSON.parse(raw); } catch { return {}; }
+      }
+      return raw;
+    }
+
+    function formatTime(iso) {
+      try {
+        return new Date(iso).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      } catch { return iso || "—"; }
+    }
+
+    function formatDateTime(iso) {
+      try {
+        return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+      } catch { return iso || "—"; }
+    }
+
+    function formatDuration(start, end) {
+      if (!start || !end) return "—";
+      const sec = Math.max(0, Math.floor((new Date(end) - new Date(start)) / 1000));
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function computePercentages(cycles) {
+      const counts = {};
+      for (const c of cycles) counts[c.state] = (counts[c.state] || 0) + 1;
+      const total = cycles.length || 1;
+      const pct = {};
+      for (const s of STATES) pct[s] = Math.round(((counts[s] || 0) / total) * 100);
+      return { counts, pct, total };
+    }
+
+    function countUniqueDays(sessions) {
+      const days = new Set();
+      for (const s of sessions) {
+        if (s.started_at) days.add(s.started_at.slice(0, 10));
+      }
+      return days.size;
+    }
+
+    function setLiveMode(live, sessionId) {
+      isLive = live;
+      const dot = $("live-dot");
+      const label = $("live-label");
+      const sidebarDot = $("sidebar-dot");
+      const sidebarStatus = $("sidebar-status");
+      const mobileStatus = $("mobile-status");
+      if (live) {
+        dot.className = "w-2 h-2 rounded-full bg-error animate-pulse";
+        label.textContent = "LIVE SYNC";
+        sidebarDot.className = "w-2 h-2 bg-[#b2c5ff] brutalist-border rounded-full";
+        sidebarStatus.textContent = sessionId ? `Session ${sessionId.slice(0, 8)}` : "Live session";
+        mobileStatus.textContent = "Live";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-outline";
+        label.textContent = "OFFLINE";
+        sidebarDot.className = "w-2 h-2 bg-outline rounded-full";
+        sidebarStatus.textContent = "API unreachable";
+        mobileStatus.textContent = "Offline";
+      }
+    }
+
+    function showError(msg) {
+      const banner = $("error-banner");
+      banner.textContent = msg;
+      banner.classList.remove("hidden");
+    }
+
+    function clearError() {
+      $("error-banner").classList.add("hidden");
+    }
+
+    function renderLegend() {
+      $("state-legend").innerHTML = STATES.map((s) => {
+        const m = STATE_META[s];
+        const swatch = s === "context_switching"
+          ? `border border-dashed border-primary bg-[${m.color}]`
+          : `bg-[${m.color}] brutalist-border`;
+        return `<div class="flex items-center gap-2 font-code-sm text-[11px] text-on-surface-variant">
+          <div class="w-3 h-3 ${swatch}" style="background-color:${m.color}"></div>
+          <span>${m.label.toUpperCase()}</span>
+        </div>`;
+      }).join("");
+    }
+
+    function updateLivePanel(cycle) {
+      if (!cycle) {
+        $("current-state").textContent = "—";
+        $("current-confidence").textContent = "—";
+        $("live-reason").textContent = "No cycles recorded for this session yet.";
+        $("telemetry-json").textContent = "{}";
+        return;
+      }
+      const meta = STATE_META[cycle.state] || STATE_META.reviewing;
+      $("current-state").textContent = meta.label.toUpperCase();
+      $("current-state").style.color = meta.color;
+      const conf = Math.round((cycle.confidence || 0) * 100);
+      $("current-confidence").textContent = `${conf}%`;
+      $("live-reason").textContent = cycle.reason || "No reason recorded.";
+      $("metric-wpm").textContent = `Latest WPM: ${cycle.wpm != null ? Number(cycle.wpm).toFixed(1) : "—"}`;
+      $("telemetry-json").textContent = JSON.stringify({
+        state: cycle.state,
+        confidence: cycle.confidence,
+        wpm: cycle.wpm,
+        backspace_ratio: cycle.backspace_ratio,
+        window_switches: cycle.window_switches,
+        active_window: cycle.active_window,
+        timestamp: cycle.timestamp,
+      }, null, 2);
+    }
+
+    function updateFocusMetrics(cycles, sessionMeta) {
+      const { pct } = computePercentages(cycles);
+      $("focus-trend-value").textContent = cycles.length ? `${pct.flow}%` : "—";
+      $("metric-flow").innerHTML = cycles.length ? `${pct.flow}<span class="text-title-md text-outline ml-1">%</span>` : "—";
+
+      if (sessionMeta) {
+        $("metric-duration").textContent = formatDuration(sessionMeta.started_at, sessionMeta.ended_at);
+        $("focus-trend-sub").textContent = formatDateTime(sessionMeta.started_at);
+      }
+
+      const bars = $("metric-flow-bars");
+      bars.innerHTML = "";
+      const slice = cycles.slice(-6);
+      const max = Math.max(1, ...slice.map((c) => c.wpm || 0));
+      slice.forEach((c) => {
+        const h = Math.max(8, Math.round(((c.wpm || 0) / max) * 100));
+        const color = (STATE_META[c.state] || STATE_META.reviewing).color;
+        bars.innerHTML += `<div class="flex-1 rounded-sm brutalist-border" style="height:${h}%;background:${color}" title="${c.state}"></div>`;
+      });
+
+      renderSparkline(cycles);
+    }
+
+    function renderSparkline(cycles) {
+      const area = $("sparkline-area");
+      const line = $("sparkline-line");
+      if (!cycles.length) {
+        area.setAttribute("d", "M0,100 L1000,100 Z");
+        line.setAttribute("d", "M0,100 L1000,100");
+        return;
+      }
+      const points = cycles.map((c, i) => {
+        const x = (i / Math.max(1, cycles.length - 1)) * 1000;
+        const flowScore = c.state === "flow" ? (c.confidence || 0.5) : c.state === "stuck" ? 0.1 : 0.35;
+        const y = 100 - flowScore * 90;
+        return `${i === 0 ? "M" : "L"}${x},${y}`;
+      }).join(" ");
+      line.setAttribute("d", points);
+      area.setAttribute("d", `${points} L1000,100 L0,100 Z`);
+    }
+
+    function renderBreakdown(cycles, sessionMeta) {
+      const title = $("breakdown-title");
+      const container = $("breakdown-bars");
+      const empty = $("breakdown-empty");
+      if (!cycles.length) {
+        title.textContent = "Session breakdown";
+        container.innerHTML = "";
+        empty.classList.remove("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+      const sid = sessionMeta?.session_id || activeSessionId || "";
+      title.textContent = `Session breakdown (${sid.slice(0, 8)}…)`;
+      const { pct } = computePercentages(cycles);
+      container.innerHTML = STATES.filter((s) => pct[s] > 0).map((s) => {
+        const m = STATE_META[s];
+        return `<div class="flex justify-between items-center gap-4">
+          <span class="font-code-sm text-sm flex items-center"><span class="inline-block w-3 h-3 mr-2 brutalist-border" style="background:${m.color}"></span>${m.label}</span>
+          <div class="flex-1 mx-2 h-3 brutalist-border bg-surface-variant"><div class="h-full border-r-2 border-primary" style="width:${pct[s]}%;background:${m.color}"></div></div>
+          <span class="font-title-md tabular-nums">${pct[s]}%</span>
+        </div>`;
+      }).join("");
+    }
+
+    function renderCycleLog(cycles) {
+      const tbody = $("cycle-log");
+      const empty = $("cycle-log-empty");
+      if (!cycles.length) {
+        tbody.innerHTML = "";
+        empty.classList.remove("hidden");
+        return;
+      }
+      empty.classList.add("hidden");
+      tbody.innerHTML = [...cycles].reverse().slice(0, 50).map((c) => {
+        const m = STATE_META[c.state] || STATE_META.reviewing;
+        const conf = Math.round((c.confidence || 0) * 100);
+        return `<tr class="border-b border-surface-variant hover:bg-surface-variant">
+          <td class="py-2 px-4 tabular-nums">${formatTime(c.timestamp)}</td>
+          <td class="py-2 px-4 ${m.textClass}">${m.label}</td>
+          <td class="py-2 px-4 tabular-nums">${conf}%</td>
+          <td class="py-2 px-4 tabular-nums">${c.wpm != null ? Number(c.wpm).toFixed(1) : "—"}</td>
+          <td class="py-2 px-4">${c.active_window || "—"}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderSessionBar(breakdown, total) {
+      if (!total) return "";
+      return STATES.map((s) => {
+        const n = breakdown[s] || 0;
+        if (!n) return "";
+        const pct = (n / total) * 100;
+        const color = STATE_META[s].color;
+        return `<div class="h-full" style="width:${pct}%;background:${color}" title="${STATE_META[s].label}"></div>`;
+      }).join("");
+    }
+
+    function renderSessionList(sessions, filter = "") {
+      const list = $("session-list");
+      const empty = $("session-list-empty");
+      const q = filter.trim().toLowerCase();
+      const filtered = q
+        ? sessions.filter((s) => s.session_id.toLowerCase().includes(q) || formatDateTime(s.started_at).toLowerCase().includes(q))
+        : sessions;
+
+      if (!filtered.length) {
+        list.innerHTML = "";
+        empty.classList.remove("hidden");
+        empty.textContent = sessions.length ? "No sessions match your filter." : "No sessions stored yet.";
+        return;
+      }
+      empty.classList.add("hidden");
+      list.innerHTML = filtered.map((s) => {
+        const breakdown = parseBreakdown(s.state_breakdown);
+        const total = s.cycle_count || Object.values(breakdown).reduce((a, b) => a + b, 0);
+        const active = s.session_id === activeSessionId ? "session-row-active" : "bg-surface";
+        return `<li>
+          <button type="button" data-session-id="${s.session_id}" class="session-row w-full text-left ${active} p-3 brutalist-border rounded hover:bg-secondary-container transition-colors group">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-title-md text-primary group-hover:text-on-secondary-fixed">${s.session_id.slice(0, 8)}…</span>
+              <span class="font-label-caps text-xs text-outline tabular-nums">${s.cycle_count} cycles</span>
+            </div>
+            <div class="text-sm font-code-sm text-on-surface-variant mb-2">${formatDateTime(s.started_at)} · ${formatDuration(s.started_at, s.ended_at)}</div>
+            <div class="w-full h-2 flex rounded-full overflow-hidden brutalist-border">${renderSessionBar(breakdown, total)}</div>
+          </button>
+        </li>`;
+      }).join("");
+
+      list.querySelectorAll(".session-row").forEach((btn) => {
+        btn.addEventListener("click", () => selectSession(btn.dataset.sessionId));
+      });
+    }
+
+    async function selectSession(sessionId) {
+      activeSessionId = sessionId;
+      const meta = allSessions.find((s) => s.session_id === sessionId);
+      try {
+        const cycles = await apiFetch(`/api/sessions/${encodeURIComponent(sessionId)}`);
+        activeCycles = cycles;
+        loadSessionView(cycles, meta);
+        renderSessionList(allSessions, $("session-search").value);
+      } catch (err) {
+        showError(`Failed to load session: ${err.message}`);
+      }
+    }
+
+    function loadSessionView(cycles, sessionMeta) {
+      activeCycles = cycles || [];
+      $("cycle-count-label").textContent = `${activeCycles.length} cycles`;
+      $("canvas-empty").classList.toggle("hidden", activeCycles.length > 0);
+      if (pixelEngine) pixelEngine.setCycles(activeCycles);
+      const latest = activeCycles[activeCycles.length - 1];
+      updateLivePanel(latest);
+      updateFocusMetrics(activeCycles, sessionMeta);
+      renderBreakdown(activeCycles, sessionMeta);
+      renderCycleLog(activeCycles);
+    }
+
+    function clearSkeleton(el, text) {
+      el.classList.remove("skeleton");
+      el.textContent = text;
+    }
+
+    function renderInsights(data) {
+      clearSkeleton($("ins-total-sessions"), String(data.total_sessions ?? 0));
+      clearSkeleton($("ins-total-cycles"), String(data.total_cycles ?? 0));
+      clearSkeleton($("ins-avg-flow"), `${data.avg_flow_pct ?? 0}%`);
+      clearSkeleton($("ins-avg-length"), `${data.avg_session_duration_minutes ?? 0}m`);
+
+      $("metric-days").innerHTML = `${countUniqueDays(allSessions)}<span class="font-title-md text-title-md text-outline ml-2 tracking-normal">days</span>`;
+      $("metric-cycles-total").textContent = `Total cycles: ${data.total_cycles ?? 0}`;
+
+      const wpmContainer = $("wpm-bars");
+      const wpm = data.avg_wpm_by_state || {};
+      const maxWpm = Math.max(1, ...STATES.map((s) => wpm[s] || 0));
+      wpmContainer.innerHTML = STATES.filter((s) => wpm[s] != null).map((s) => {
+        const val = wpm[s];
+        const width = Math.round((val / maxWpm) * 100);
+        const color = STATE_META[s].color;
+        return `<div class="flex items-center gap-4">
+          <div class="w-24 font-code-sm text-sm text-right">${STATE_META[s].label}</div>
+          <div class="flex-1 h-6 brutalist-border bg-surface-variant relative">
+            <div class="h-full absolute top-0 left-0 border-r-2 border-primary" style="width:${width}%;background:${color}"></div>
+          </div>
+          <div class="w-12 font-title-md tabular-nums">${val}</div>
+        </div>`;
+      }).join("") || `<p class="font-code-sm text-sm text-on-surface-variant">No WPM aggregates yet.</p>`;
+
+      const peakContainer = $("peak-hours");
+      const peaks = (data.peak_hours || []).slice(0, 8);
+      if (!peaks.length) {
+        peakContainer.innerHTML = `<p class="font-code-sm text-sm text-on-surface-variant self-center w-full text-center">No hourly data yet.</p>`;
+        return;
+      }
+      const maxRate = Math.max(1, ...peaks.map((p) => p.flow_rate));
+      peakContainer.innerHTML = peaks.map((p) => {
+        const h = Math.max(12, Math.round((p.flow_rate / maxRate) * 100));
+        const highlight = p.flow_rate >= maxRate * 0.85 ? "bg-secondary-container" : "bg-surface-variant hover:bg-secondary-container";
+        return `<div class="flex-1 ${highlight} brutalist-border transition-colors relative group" style="height:${h}%" title="${p.hour}:00">
+          <span class="absolute -top-6 left-1/2 -translate-x-1/2 hidden group-hover:block font-code-sm text-[10px] whitespace-nowrap">${p.flow_rate}%</span>
+        </div>`;
+      }).join("") + `<div class="absolute bottom-0 translate-y-full left-0 w-full flex justify-between pt-2 pointer-events-none">
+        ${peaks.map((p) => `<span class="font-code-sm text-[10px] text-outline-variant">${p.hour}h</span>`).join("")}
+      </div>`;
+    }
+
+    function renderHabits(data) {
+      const dayContainer = $("flow-by-day");
+      const byDay = data.flow_by_day || {};
+      const dayKeys = Object.keys(byDay);
+      if (!dayKeys.length) {
+        dayContainer.innerHTML = `<p class="font-code-sm text-sm text-on-surface-variant self-center w-full text-center">No weekday pattern data yet.</p>`;
+      } else {
+        const max = Math.max(1, ...Object.values(byDay));
+        dayContainer.innerHTML = DAY_LABELS.map((label, i) => {
+          const val = byDay[i] ?? 0;
+          const h = Math.max(16, Math.round((val / max) * 128));
+          return `<div class="flex flex-col items-center gap-2 flex-1 min-w-0">
+            <div class="font-title-md text-sm tabular-nums">${val ? val + "%" : "—"}</div>
+            <div class="w-full max-w-[2rem] brutalist-border" style="height:${h}px;background:${val >= max * 0.7 ? "#b2c5ff" : "#e8dff0"}"></div>
+            <div class="font-label-caps text-[10px]">${label}</div>
+          </div>`;
+        }).join("");
+      }
+
+      const winContainer = $("window-correlations");
+      const wins = data.window_correlations || [];
+      if (!wins.length) {
+        winContainer.innerHTML = `<p class="font-code-sm text-sm text-on-surface-variant">Need at least 3 cycles per window to show correlations.</p>`;
+        return;
+      }
+      winContainer.innerHTML = wins.slice(0, 6).map((w, i) => {
+        const bg = ["bg-surface-variant", "bg-surface-container-high", "bg-surface-container-low"][i % 3];
+        const shortName = w.window.length > 28 ? w.window.slice(0, 26) + "…" : w.window;
+        return `<div class="flex items-center justify-between p-3 ${bg} brutalist-border rounded">
+          <div>
+            <div class="font-title-md text-primary">${shortName || "Unknown"}</div>
+            <div class="font-code-sm text-xs text-on-surface-variant tabular-nums">${w.total_cycles} cycles · ${w.avg_wpm} avg WPM</div>
+          </div>
+          <div class="font-headline-lg text-2xl text-primary tabular-nums">${w.flow_rate}%</div>
+        </div>`;
+      }).join("");
+    }
+
+    class PixelCanvas {
+      constructor(canvas) {
+        this.canvas = canvas;
+        this.ctx = canvas.getContext("2d");
+        this.cycles = [];
+        this.grid = [];
+        this.time = 0;
+        this.raf = null;
+        this.buildGrid();
+        window.addEventListener("resize", () => this.resize());
+      }
+
+      setCycles(cycles) {
+        this.cycles = cycles || [];
+        this.buildGrid();
+        this.draw();
+      }
+
+      stateToCode(state) {
+        const map = { flow: 1, stuck: 2, reviewing: 3, debugging: 4, context_switching: 5 };
+        return map[state] || 0;
+      }
+
+      codeToColor(code) {
+        const map = {
+          1: STATE_META.flow.color,
+          2: STATE_META.stuck.color,
+          3: STATE_META.reviewing.color,
+          4: STATE_META.debugging.color,
+          5: STATE_META.context_switching.color,
+        };
+        return map[code] || "transparent";
+      }
+
+      buildGrid() {
+        this.grid = [];
+        for (let i = 0; i < GRID_COLS; i++) {
+          this.grid[i] = [];
+          for (let j = 0; j < GRID_ROWS; j++) {
+            this.grid[i][j] = { state: 0, noiseOffset: Math.random() * Math.PI * 2 };
+          }
+        }
+        if (!this.cycles.length) return;
+        const total = GRID_COLS * GRID_ROWS;
+        const per = Math.max(1, Math.floor(total / this.cycles.length));
+        let idx = 0;
+        for (const cycle of this.cycles) {
+          const code = this.stateToCode(cycle.state);
+          for (let n = 0; n < per && idx < total; n++) {
+            const col = idx % GRID_COLS;
+            const row = Math.floor(idx / GRID_COLS);
+            this.grid[col][row].state = code;
+            idx++;
+          }
+        }
+      }
+
+      resize() {
+        const parent = this.canvas.parentElement;
+        this.width = parent.clientWidth;
+        this.height = Math.max(300, parent.clientHeight);
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this.cellW = this.width / GRID_COLS;
+        this.cellH = this.height / GRID_ROWS;
+        this.draw();
+      }
+
+      draw() {
+        if (!this.ctx) return;
+        const { ctx, grid, cellW, cellH } = this;
+        ctx.clearRect(0, 0, this.width, this.height);
+        ctx.strokeStyle = "#e8dff0";
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= GRID_COLS; i++) {
+          ctx.beginPath(); ctx.moveTo(i * cellW, 0); ctx.lineTo(i * cellW, this.height); ctx.stroke();
+        }
+        for (let j = 0; j <= GRID_ROWS; j++) {
+          ctx.beginPath(); ctx.moveTo(0, j * cellH); ctx.lineTo(this.width, j * cellH); ctx.stroke();
+        }
+        this.time += 0.05;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        for (let i = 0; i < GRID_COLS; i++) {
+          for (let j = 0; j < GRID_ROWS; j++) {
+            const cell = grid[i][j];
+            if (cell.state !== 0) {
+              const opacity = reduceMotion ? 1 : 0.7 + 0.3 * Math.sin(this.time + cell.noiseOffset);
+              ctx.globalAlpha = opacity;
+              ctx.fillStyle = this.codeToColor(cell.state);
+              ctx.fillRect(i * cellW + 1, j * cellH + 1, cellW - 2, cellH - 2);
+            }
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      start() {
+        if (this.raf) return;
+        const loop = () => {
+          this.draw();
+          this.raf = requestAnimationFrame(loop);
+        };
+        this.raf = requestAnimationFrame(loop);
+      }
+
+      stop() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.raf = null;
+      }
+    }
+
+    async function refreshAll() {
+      try {
+        const health = await apiFetch("/api/health");
+        $("api-pill").textContent = `API: ${health.status}${health.session_id ? " · " + health.session_id.slice(0, 8) : ""}`;
+        setLiveMode(true, health.session_id);
+
+        allSessions = await apiFetch("/api/sessions");
+        const latestCycles = await apiFetch("/api/sessions/latest");
+        const insights = await apiFetch("/api/insights");
+        const habits = await apiFetch("/api/habits");
+
+        if (!activeSessionId && allSessions[0]) activeSessionId = allSessions[0].session_id;
+
+        let cycles = latestCycles;
+        if (activeSessionId) {
+          try {
+            cycles = await apiFetch(`/api/sessions/${encodeURIComponent(activeSessionId)}`);
+          } catch {
+            cycles = latestCycles;
+          }
+        }
+
+        const meta = allSessions.find((s) => s.session_id === activeSessionId) || allSessions[0];
+        loadSessionView(cycles, meta);
+        renderSessionList(allSessions, $("session-search").value);
+        renderInsights(insights);
+        renderHabits(habits);
+        clearError();
+      } catch (err) {
+        setLiveMode(false);
+        $("api-pill").textContent = `API: offline (${API_BASE})`;
+        showError(`Cannot reach AURADEV API at ${API_BASE}. Start the app with python auradev/main.py --demo`);
+      }
+    }
+
+    function setupNavHighlight() {
+      const links = document.querySelectorAll("[data-nav]");
+      const sections = [...links].map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          links.forEach((link) => {
+            const active = link.dataset.nav === id;
+            link.classList.toggle("nav-active", active);
+            link.classList.toggle("text-on-surface-variant", !active);
+          });
+        });
+      }, { rootMargin: "-20% 0px -60% 0px", threshold: 0 });
+      sections.forEach((s) => observer.observe(s));
+    }
+
+    function initDashboard() {
+      try {
+        renderLegend();
+        pixelEngine = new PixelCanvas($("pixel-canvas"));
+        pixelEngine.resize();
+        pixelEngine.start();
+
+        $("refresh-btn").addEventListener("click", refreshAll);
+        $("session-search").addEventListener("input", (e) => renderSessionList(allSessions, e.target.value));
+
+        setupNavHighlight();
+        refreshAll();
+        pollTimer = setInterval(refreshAll, POLL_MS);
+      } catch (err) {
+        console.error("Dashboard init failed:", err);
+        showError(`Dashboard failed to start: ${err.message}`);
+      }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initDashboard);
+    } else {
+      initDashboard();
+    }
+
+    window.addEventListener("beforeunload", () => {
+      if (pollTimer) clearInterval(pollTimer);
+      if (pixelEngine) pixelEngine.stop();
+    });
+  </script>
+</body>
+</html>

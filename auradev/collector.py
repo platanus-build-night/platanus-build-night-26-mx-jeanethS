@@ -1,5 +1,5 @@
 """
-Signal Collection Module for DevAura
+Signal Collection Module for auradev
 
 Collects developer behavioral telemetry including:
 - Keyboard metrics (keystrokes, backspaces, WPM, idle time)

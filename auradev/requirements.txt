@@ -3,5 +3,8 @@ anthropic
 pynput
 psutil
 pygetwindow
-numpy
+requests
+google-auth
 pygame
+fastapi
+uvicorn[standard]

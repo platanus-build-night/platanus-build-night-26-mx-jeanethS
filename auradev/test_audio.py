@@ -53,29 +53,30 @@ class TestSineWaveGeneration(unittest.TestCase):
 
     def test_buffer_shape_and_dtype(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer([440.0], duration=0.5)
+        buffer = engine.generate_chord_buffer([440.0], "flow", duration=0.5)
         expected_samples = int(0.5 * engine.sample_rate)
         self.assertEqual(buffer.shape, (expected_samples, 2))
         self.assertEqual(buffer.dtype, np.int16)
 
     def test_buffer_finite(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer([440.0, 554.37], duration=1.0)
+        buffer = engine.generate_chord_buffer([440.0, 554.37], "flow", duration=1.0)
         self.assertTrue(np.all(np.isfinite(buffer)))
 
     def test_buffer_not_silent(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer([440.0], duration=1.0)
+        buffer = engine.generate_chord_buffer([440.0], "flow", duration=1.0)
         self.assertGreater(np.max(np.abs(buffer)), 0)
 
     def test_multiple_frequencies(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer(CHORDS["flow"], duration=1.0)
+        buffer = engine.generate_chord_buffer(CHORDS["flow"], "flow", duration=1.0)
         self.assertGreater(np.max(np.abs(buffer)), 0)
 
     def test_empty_chord_is_silent(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer([], duration=1.0)
+        engine.drums_enabled = False
+        buffer = engine.generate_chord_buffer([], "flow", duration=1.0)
         self.assertTrue(np.all(buffer == 0))
 
 
@@ -179,7 +180,7 @@ class TestTremolo(unittest.TestCase):
         engine = audio_module.AudioEngine()
         # Flatten ADSR to isolate tremolo effect
         engine._create_adsr_envelope = lambda s: np.ones(s)
-        buffer = engine.generate_chord_buffer([440.0], duration=2.0)
+        buffer = engine.generate_chord_buffer([440.0], "flow", duration=2.0)
         float_buf = buffer[:, 0].astype(np.float64) / 32767.0
         # Moving-average envelope detection
         window = int(0.02 * engine.sample_rate)  # 20 ms
@@ -198,7 +199,7 @@ class TestSubBass(unittest.TestCase):
     def test_sub_bass_frequency_present(self):
         engine = audio_module.AudioEngine()
         root = 440.0
-        buffer = engine.generate_chord_buffer([root], duration=1.0)
+        buffer = engine.generate_chord_buffer([root], "flow", duration=1.0)
         samples = buffer.shape[0]
         spectrum = np.abs(np.fft.rfft(buffer[:, 0].astype(np.float64)))
         freqs = np.fft.rfftfreq(samples, d=1.0 / engine.sample_rate)
@@ -295,7 +296,7 @@ class TestVolumeAndClipping(unittest.TestCase):
     def test_max_volume_within_limit(self):
         engine = audio_module.AudioEngine()
         for state, freqs in CHORDS.items():
-            buffer = engine.generate_chord_buffer(freqs, duration=1.0)
+            buffer = engine.generate_chord_buffer(freqs, "flow", duration=1.0)
             float_buf = buffer.astype(np.float64) / 32767.0
             max_amp = np.max(np.abs(float_buf))
             self.assertLessEqual(
@@ -304,7 +305,7 @@ class TestVolumeAndClipping(unittest.TestCase):
 
     def test_no_integer_clipping(self):
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer(CHORDS["flow"], duration=3.0)
+        buffer = engine.generate_chord_buffer(CHORDS["flow"], "flow", duration=3.0)
         self.assertEqual(buffer.dtype, np.int16)
         self.assertGreaterEqual(np.min(buffer), -32768)
         self.assertLessEqual(np.max(buffer), 32767)
@@ -312,7 +313,7 @@ class TestVolumeAndClipping(unittest.TestCase):
     def test_volume_headroom(self):
         """After normalization the peak should be close to VOLUME * 32767."""
         engine = audio_module.AudioEngine()
-        buffer = engine.generate_chord_buffer([261.63, 329.63, 392.00], duration=2.0)
+        buffer = engine.generate_chord_buffer([261.63, 329.63, 392.00], "flow", duration=2.0)
         max_val = np.max(np.abs(buffer))
         expected_max = int(VOLUME * 32767)
         # Allow off-by-one due to rounding

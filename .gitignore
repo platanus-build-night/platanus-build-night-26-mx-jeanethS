@@ -1,1 +1,73 @@
-devaura/.env
+# API Keys and Credentials
+.env
+auradev/.env
+*.env
+*.env.*
+!.env.example
+
+# Google Cloud service account keys
+*service-account*.json
+gcp-*.json
+*-key.json
+credentials.json
+
+# OAuth client secrets
+client_secret*.json
+
+# Session data and logs
+session.log
+auradev/session.log
+*.log
+auradev_sessions.db
+*.db
+*.sqlite
+
+# Temporary audio files
+*.wav
+*.mp3
+*.ogg
+audio_cache/
+temp_audio/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+*.pyc
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cursor IDE
+.cursor/

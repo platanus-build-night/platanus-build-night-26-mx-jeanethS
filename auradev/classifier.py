@@ -1,5 +1,5 @@
 """
-Claude Classifier Module for DevAura
+Claude Classifier Module for auradev
 
 Sends telemetry data to Claude API for cognitive state classification.
 Handles API calls, response validation, and fallback behavior.
@@ -7,20 +7,25 @@ Handles API calls, response validation, and fallback behavior.
 
 import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional, Tuple
+
 from anthropic import Anthropic
+
 from config import ANTHROPIC_API_KEY, CLASSIFIER_MODEL, STATES
+
+_CACHE_CONFIDENCE_THRESHOLD = 0.70
 
 
 class CognitiveClassifier:
     def __init__(self):
         if not ANTHROPIC_API_KEY:
             raise ValueError("ANTHROPIC_API_KEY environment variable is required")
-        
+
         self.client = Anthropic(api_key=ANTHROPIC_API_KEY)
         self.last_state = None
-        
-        # Set up logging
+        self._last_fingerprint: Optional[Tuple] = None
+        self._last_result: Optional[Dict[str, Any]] = None
+
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         
@@ -42,18 +47,33 @@ State definitions:
 
 Base your decision on the telemetry patterns, not just individual metrics."""
 
+    def _metrics_fingerprint(self, metrics: Dict[str, Any]) -> Tuple:
+        """Bucket continuous metrics so near-identical telemetry produces the same key."""
+        return (
+            int(metrics.get("wpm", 0) // 5) * 5,
+            round(metrics.get("backspace_ratio", 0), 1),
+            min(int(metrics.get("window_switches", 0)), 10),
+            int(metrics.get("idle_seconds", 0) // 30) * 30,
+            int(metrics.get("cpu_percent", 0) // 10) * 10,
+        )
+
     def classify_state(self, metrics: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Send metrics to Claude and return classification result.
-        
-        Returns:
-            Dict with 'state', 'confidence', and 'reason' keys
+        Return a cached result when metrics fingerprint matches the last call
+        and that call returned high confidence, otherwise call the Anthropic API.
         """
+        fingerprint = self._metrics_fingerprint(metrics)
+        if (
+            self._last_fingerprint == fingerprint
+            and self._last_result is not None
+            and self._last_result.get("confidence", 0) >= _CACHE_CONFIDENCE_THRESHOLD
+        ):
+            self.logger.info("Classifier cache hit — skipping API call")
+            return self._last_result
+
         try:
-            # Prepare the telemetry message
             telemetry_json = json.dumps(metrics, indent=2)
-            
-            # Make API call
+
             response = self.client.messages.create(
                 model=CLASSIFIER_MODEL,
                 max_tokens=100,
@@ -66,13 +86,13 @@ Base your decision on the telemetry patterns, not just individual metrics."""
                 ]
             )
             
-            # Parse response
             response_text = response.content[0].text.strip()
             result = json.loads(response_text)
-            
-            # Validate response
+
             if self._validate_response(result):
                 self.last_state = result["state"]
+                self._last_fingerprint = fingerprint
+                self._last_result = result
                 return result
             else:
                 self.logger.error(f"Invalid response format: {result}")

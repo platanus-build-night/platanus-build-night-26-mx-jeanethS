@@ -1,5 +1,5 @@
 """
-DevAura - Ambient Music Engine for Developers
+auradev - Ambient Music Engine for Developers
 
 Samples developer behavioral telemetry, classifies cognitive state via Claude,
 and plays procedurally generated music matching that state.
@@ -12,17 +12,27 @@ Usage:
 import argparse
 import signal
 import sys
+import threading
 import time
+import uuid
 from typing import Dict, Any, Optional
 
 from collector import TelemetryCollector
 from classifier import CognitiveClassifier
-from audio import AudioEngine
+import lyria
 from logger import SessionLogger
-from config import SAMPLE_INTERVAL, STATES
+from database import init_db
+from config import SAMPLE_INTERVAL, STATES, API_PORT, LYRIA_PROJECT_ID
+
+try:
+    import api as api_module
+    import uvicorn
+except ImportError:
+    api_module = None
+    uvicorn = None
 
 
-class DevAura:
+class auradev:
     def __init__(
         self,
         demo_mode: bool = False,
@@ -48,10 +58,18 @@ class DevAura:
         else:
             self.max_cycles = 3 if demo_mode else None
 
+        # Session identity and persistence
+        self.session_id = str(uuid.uuid4())
+        init_db()
+
         # Initialize components (allow injection for testing)
         self.collector = collector if collector is not None else TelemetryCollector()
-        self.audio_engine = audio_engine if audio_engine is not None else AudioEngine()
-        self.logger = logger if logger is not None else SessionLogger()
+        self.audio_engine = audio_engine if audio_engine is not None else None
+        self.logger = logger if logger is not None else SessionLogger(session_id=self.session_id)
+
+        # Initialize Lyria when no audio engine is injected
+        if self.audio_engine is None:
+            lyria.init_lyria(LYRIA_PROJECT_ID)
 
         # Only initialize classifier in normal mode
         if not demo_mode:
@@ -68,16 +86,31 @@ class DevAura:
         # Set up signal handler for graceful shutdown
         signal.signal(signal.SIGINT, self._signal_handler)
 
+        # Start API server in background
+        self._start_api_server()
+
     def _signal_handler(self, signum, frame):
         """Handle Ctrl+C gracefully."""
-        print("\nShutting down DevAura...")
+        print("\nShutting down auradev...")
         self.running = False
+
+    def _start_api_server(self) -> None:
+        """Start FastAPI in a background daemon thread."""
+        if api_module is None or uvicorn is None:
+            print("Warning: fastapi or uvicorn not installed. Skipping API server.")
+            return
+        api_module.app.state.session_id = self.session_id
+        config = uvicorn.Config(api_module.app, host="0.0.0.0", port=API_PORT, log_level="error")
+        server = uvicorn.Server(config)
+        thread = threading.Thread(target=server.run, daemon=True)
+        thread.start()
+        print(f"API server running at http://localhost:{API_PORT}")
 
     def start(self):
         """Start the main application loop."""
         self.running = True
 
-        print("DevAura starting...")
+        print("auradev starting...")
         print("Press Ctrl+C to stop")
         print("-" * 50)
 
@@ -109,10 +142,17 @@ class DevAura:
                     classification = self.classifier.classify_state(metrics)
 
                 # Update audio
-                self.audio_engine.play_state(classification["state"])
+                if self.audio_engine is not None:
+                    self.audio_engine.play_state(classification["state"])
+                else:
+                    lyria.play_state(classification["state"])
 
                 # Log the cycle
                 self.logger.log_cycle(metrics, classification)
+
+                # Prefetch remaining states after first classification
+                if self.audio_engine is None and self.cycle_count == 0:
+                    lyria.prefetch_next(classification["state"])
 
                 self.cycle_count += 1
 
@@ -204,18 +244,23 @@ class DevAura:
 
         # Stop audio
         if hasattr(self, 'audio_engine') and self.audio_engine is not None:
-            self.audio_engine.cleanup()
+            if hasattr(self.audio_engine, 'cleanup'):
+                self.audio_engine.cleanup()
+            elif hasattr(self.audio_engine, 'stop'):
+                self.audio_engine.stop()
+        else:
+            lyria.stop()
 
         # Print session summary
         if hasattr(self, 'logger') and self.logger is not None:
             self.logger.print_session_summary()
 
-        print("DevAura stopped.")
+        print("auradev stopped.")
 
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="DevAura - Ambient Music Engine for Developers")
+    parser = argparse.ArgumentParser(description="auradev - Ambient Music Engine for Developers")
     parser.add_argument(
         "--demo",
         action="store_true",
@@ -252,7 +297,7 @@ def main():
     if interval is None:
         interval = 5 if args.demo else SAMPLE_INTERVAL
 
-    app = DevAura(
+    app = auradev(
         demo_mode=args.demo,
         sample_interval=interval,
         max_cycles=args.max_cycles

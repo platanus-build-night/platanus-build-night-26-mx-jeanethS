@@ -1,5 +1,5 @@
 {
-  "project-name": "DevAura",
+  "project-name": "AuraDev",
   "project-oneliner": "Ambient coding companion that samples developer behavior, classifies cognitive state via Claude, and plays adaptive procedural music",
-  "project-description": "DevAura is a Python-only ambient music engine that runs silently in the background, monitoring developer behavioral telemetry every 30 seconds. It uses Claude AI to classify cognitive state (flow, stuck, debugging, reviewing, context_switching) and generates procedurally synthesized ambient music matching that state. Features real-time telemetry collection, AI-powered state classification, pure Python audio synthesis, session logging with colored terminal output, and an offline demo mode. Perfect for developers who want adaptive background music that responds to their actual coding patterns."
+  "project-description": "AuraDev is a Python-only ambient music engine that runs silently in the background, monitoring developer behavioral telemetry every 30 seconds. It uses Claude AI to classify cognitive state (flow, stuck, debugging, reviewing, context_switching) and generates procedurally synthesized ambient music matching that state. Features real-time telemetry collection, AI-powered state classification, pure Python audio synthesis, session logging with colored terminal output, and an offline demo mode. Perfect for developers who want adaptive background music that responds to their actual coding patterns."
 }

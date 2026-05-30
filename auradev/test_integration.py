@@ -1,5 +1,5 @@
 """
-Integration tests for DevAura.
+Integration tests for auradev.
 
 Validates that all modules wire together correctly in main.py:
 - Metrics flow from collector to classifier as plain dicts.
@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.modules["pygame"] = MagicMock()
 sys.modules["numpy"] = MagicMock()
 
-from main import DevAura
+from main import auradev
 from config import STATES
 
 
@@ -34,7 +34,7 @@ class TestIntegrationDemoPipeline(unittest.TestCase):
 
     def test_demo_runs_specified_cycles_and_stops(self):
         """Demo mode with max_cycles=2 should execute exactly 2 cycles."""
-        app = DevAura(
+        app = auradev(
             demo_mode=True,
             max_cycles=2,
             sample_interval=0,
@@ -48,7 +48,7 @@ class TestIntegrationDemoPipeline(unittest.TestCase):
 
     def test_metrics_are_plain_dicts(self):
         """Verify collector output flows as a plain Python dict."""
-        app = DevAura(
+        app = auradev(
             demo_mode=True,
             max_cycles=1,
             sample_interval=0,
@@ -73,7 +73,7 @@ class TestIntegrationDemoPipeline(unittest.TestCase):
 
     def test_classification_results_flow_to_audio_and_logger(self):
         """Each cycle should update audio and log the classification."""
-        app = DevAura(
+        app = auradev(
             demo_mode=True,
             max_cycles=2,
             sample_interval=0,
@@ -104,7 +104,7 @@ class TestIntegrationDemoPipeline(unittest.TestCase):
 
     def test_graceful_shutdown_calls_cleanup(self):
         """Stopping the app should stop audio and print a session summary."""
-        app = DevAura(
+        app = auradev(
             demo_mode=True,
             max_cycles=1,
             sample_interval=0,
@@ -118,7 +118,7 @@ class TestIntegrationDemoPipeline(unittest.TestCase):
 
     def test_no_claude_or_telemetry_in_demo_mode(self):
         """Demo mode must not instantiate the classifier or start listeners."""
-        app = DevAura(
+        app = auradev(
             demo_mode=True,
             max_cycles=1,
             sample_interval=0,

@@ -1,5 +1,5 @@
 """
-Procedural Audio Engine for DevAura
+Procedural Audio Engine for auradev
 
 Generates ambient music based on cognitive states using pure Python synthesis.
 Features smooth transitions, ADSR envelopes, crossfading, and synthesized drums.

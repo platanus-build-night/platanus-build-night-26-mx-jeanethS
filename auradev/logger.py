@@ -1,5 +1,5 @@
 """
-Session Logger Module for DevAura
+Session Logger Module for auradev
 
 Handles terminal output with ANSI colors, ASCII visuals, and file logging.
 Tracks session statistics and generates final summaries.
@@ -8,14 +8,18 @@ Tracks session statistics and generates final summaries.
 import math
 import os
 import random
+import sys
 import time
+import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
 from config import LOG_FILE
+from database import save_cycle
 
 
 class SessionLogger:
-    def __init__(self):
+    def __init__(self, session_id: str = None):
+        self.session_id = session_id if session_id is not None else str(uuid.uuid4())
         self.session_entries: List[Dict[str, Any]] = []
         self.session_start_time = time.time()
 
@@ -45,7 +49,7 @@ class SessionLogger:
 
         # Clear/create log file
         with open(LOG_FILE, "w") as f:
-            f.write(f"DevAura Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"auradev Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
 
         self._print_logo()
 
@@ -149,6 +153,12 @@ class SessionLogger:
                    f"Switches={metrics['window_switches']}\n")
             f.write(f"  Window: {metrics['active_window']}\n")
             f.write(f"  Reason: {reason}\n\n")
+
+        # Persist to SQLite
+        try:
+            save_cycle(self.session_id, metrics, classification)
+        except Exception as e:
+            print(f"Warning: failed to save cycle to DB: {e}", file=sys.stderr)
 
     def print_session_summary(self):
         """Print final session statistics and save to file."""

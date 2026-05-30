@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def _load_env_file() -> None:
-    """Load .env from devaura/ or repo root if present."""
+    """Load .env from auradev/ or repo root if present."""
     base = Path(__file__).resolve().parent
     for env_path in (base / ".env", base.parent / ".env"):
         if not env_path.is_file():
@@ -23,11 +23,15 @@ _load_env_file()
 
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 CLASSIFIER_MODEL = os.getenv("CLASSIFIER_MODEL", "claude-opus-4-7")
+LYRIA_PROJECT_ID = os.getenv("LYRIA_PROJECT_ID")
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 SAMPLE_INTERVAL = 30
 CROSSFADE_SECONDS = 3.0
 VOLUME = 0.35
 LOG_FILE = "session.log"
+DB_FILE = "auradev_sessions.db"
+API_PORT = 8765
 
 STATES = [
     "flow",

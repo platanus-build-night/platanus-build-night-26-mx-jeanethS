@@ -2,12 +2,12 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project: DevAura
+## Project: AuraDev
 
 Ambient music engine that samples developer behavioral telemetry every 30 seconds, classifies cognitive state via Claude, and plays procedurally generated music matching that state — all in pure Python, silently in the background.
 
 **Stack:** Python only. No audio files. No external synths.  
-**Entry point:** `python devaura/main.py`
+**Entry point:** `python auradev/main.py`
 
 ## Setup
 
@@ -21,10 +21,10 @@ Requires `ANTHROPIC_API_KEY` in the environment. Copy `.env.example` to `.env` a
 
 ```bash
 # Normal mode (live telemetry + Claude classification)
-python devaura/main.py
+python auradev/main.py
 
 # Demo mode (cycles through states without Claude or network)
-python devaura/main.py --demo
+python auradev/main.py --demo
 ```
 
 ## Architecture
