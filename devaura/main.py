@@ -212,10 +212,31 @@ def main():
         action="store_true",
         help="Run in demo mode (no telemetry collection or Claude API calls)"
     )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=None,
+        help="Sample interval in seconds (default: 30, demo: 5)"
+    )
+    parser.add_argument(
+        "--max-cycles",
+        type=int,
+        default=None,
+        help="Maximum number of cycles to run (default: unlimited, demo: 3)"
+    )
 
     args = parser.parse_args()
 
-    app = DevAura(demo_mode=args.demo)
+    # Set default intervals
+    interval = args.interval
+    if interval is None:
+        interval = 5 if args.demo else SAMPLE_INTERVAL
+
+    app = DevAura(
+        demo_mode=args.demo,
+        sample_interval=interval,
+        max_cycles=args.max_cycles
+    )
     app.start()
 
 

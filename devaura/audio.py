@@ -226,34 +226,51 @@ if _AUDIO_AVAILABLE:
 
         def _do_crossfade(self, new_sound):
             """Perform the actual crossfade operation."""
-            # Start new sound at low volume
-            new_sound.set_volume(0.0)
-            new_sound.play(-1)
+            try:
+                # Start new sound at low volume
+                new_sound.set_volume(0.0)
+                new_sound.play(-1)
 
-            # Crossfade over CROSSFADE_SECONDS
-            steps = 50
-            step_time = CROSSFADE_SECONDS / steps
+                # Crossfade over CROSSFADE_SECONDS
+                steps = 50
+                step_time = CROSSFADE_SECONDS / steps
 
-            for i in range(steps + 1):
-                progress = i / steps
+                for i in range(steps + 1):
+                    if not self.is_playing:
+                        return  # Abort if stopped
+                    progress = i / steps
 
-                # Fade out old sound
+                    # Fade out old sound
+                    if self.current_sound:
+                        old_volume = VOLUME * (1 - progress)
+                        try:
+                            self.current_sound.set_volume(old_volume)
+                        except pygame.error:
+                            pass  # Mixer may have been shut down
+
+                    # Fade in new sound
+                    new_volume = VOLUME * progress
+                    try:
+                        new_sound.set_volume(new_volume)
+                    except pygame.error:
+                        return  # Mixer shut down
+
+                    time.sleep(step_time)
+
+                # Stop old sound and update current
                 if self.current_sound:
-                    old_volume = VOLUME * (1 - progress)
-                    self.current_sound.set_volume(old_volume)
+                    try:
+                        self.current_sound.stop()
+                    except pygame.error:
+                        pass
 
-                # Fade in new sound
-                new_volume = VOLUME * progress
-                new_sound.set_volume(new_volume)
-
-                time.sleep(step_time)
-
-            # Stop old sound and update current
-            if self.current_sound:
-                self.current_sound.stop()
-
-            self.current_sound = new_sound
-            new_sound.set_volume(VOLUME)
+                self.current_sound = new_sound
+                try:
+                    new_sound.set_volume(VOLUME)
+                except pygame.error:
+                    pass
+            except pygame.error:
+                pass  # Mixer may have been quit
 
         def stop(self):
             """Stop all audio playback."""
@@ -265,6 +282,9 @@ if _AUDIO_AVAILABLE:
         def cleanup(self):
             """Clean up audio resources."""
             self.stop()
+            # Wait for crossfade thread to finish
+            if self.crossfade_thread and self.crossfade_thread.is_alive():
+                self.crossfade_thread.join(timeout=1.0)
             pygame.mixer.quit()
 
 else:
