@@ -1,3 +1,4 @@
+# Python 3.11–3.13 required (pygame has no pre-built wheel for 3.14 yet)
 anthropic
 pynput
 psutil

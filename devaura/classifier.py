@@ -9,7 +9,7 @@ import json
 import logging
 from typing import Dict, Any, Optional
 from anthropic import Anthropic
-from config import ANTHROPIC_API_KEY, STATES
+from config import ANTHROPIC_API_KEY, CLASSIFIER_MODEL, STATES
 
 
 class CognitiveClassifier:
@@ -55,9 +55,8 @@ Base your decision on the telemetry patterns, not just individual metrics."""
             
             # Make API call
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model=CLASSIFIER_MODEL,
                 max_tokens=100,
-                temperature=0.2,
                 system=self.system_prompt,
                 messages=[
                     {
