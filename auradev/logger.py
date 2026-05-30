@@ -13,8 +13,14 @@ import time
 import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Any, List
-from config import LOG_FILE
+from config import LOG_FILE, SYNC_URL
 from database import save_cycle
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -164,6 +170,36 @@ class SessionLogger:
             save_cycle(self.session_id, metrics, classification)
         except Exception as e:
             print(f"Warning: failed to save cycle to DB: {e}", file=sys.stderr)
+
+        # Sync to cloud API
+        self._sync_to_cloud(metrics, classification)
+
+    def _sync_to_cloud(self, metrics: Dict[str, Any], classification: Dict[str, Any]):
+        """Send cycle data to cloud API for dashboard sync."""
+        if not HAS_REQUESTS or not SYNC_URL:
+            return
+        
+        try:
+            payload = {
+                "session_id": self.session_id,
+                "state": classification.get("state", "reviewing"),
+                "confidence": classification.get("confidence", 0.0),
+                "reason": classification.get("reason", ""),
+                "wpm": metrics.get("wpm", 0.0),
+                "backspace_ratio": metrics.get("backspace_ratio", 0.0),
+                "window_switches": metrics.get("window_switches", 0),
+                "mouse_distance": metrics.get("mouse_distance", 0.0),
+                "cpu_percent": metrics.get("cpu_percent", 0.0),
+                "idle_seconds": metrics.get("idle_seconds", 0.0),
+                "active_window": metrics.get("active_window", ""),
+            }
+            resp = requests.post(SYNC_URL, json=payload, timeout=5)
+            if resp.status_code == 200:
+                print(f"  {self.dim}☁ synced to cloud{self.reset_color}")
+            else:
+                print(f"  {self.dim}☁ sync failed: {resp.status_code}{self.reset_color}", file=sys.stderr)
+        except Exception as e:
+            print(f"  {self.dim}☁ sync error: {e}{self.reset_color}", file=sys.stderr)
 
     def print_session_summary(self):
         """Print final session statistics and save to file."""

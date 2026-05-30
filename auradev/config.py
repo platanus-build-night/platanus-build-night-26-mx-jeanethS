@@ -26,6 +26,9 @@ CLASSIFIER_MODEL = os.getenv("CLASSIFIER_MODEL", "claude-opus-4-7")
 LYRIA_PROJECT_ID = os.getenv("LYRIA_PROJECT_ID")
 GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
+# Cloud sync URL - set to your Render deployment
+SYNC_URL = os.getenv("AURADEV_SYNC_URL", "https://auradev-y1bp.onrender.com/api/sync")
+
 SAMPLE_INTERVAL = 30
 CROSSFADE_SECONDS = 3.0
 VOLUME = 0.35

@@ -3,12 +3,14 @@
 import json
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import Optional
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from database import get_all_sessions, get_session_cycles, get_insights, get_habits, init_db
+from database import get_all_sessions, get_session_cycles, get_insights, get_habits, init_db, save_cycle
 from config import API_PORT
 
 # Initialize database on startup
@@ -66,6 +68,43 @@ def insights():
 def habits():
     """Cross-session behavioral patterns."""
     return get_habits()
+
+
+# --- Sync endpoint for local app to push data to cloud ---
+
+class CycleData(BaseModel):
+    session_id: str
+    state: str
+    confidence: float = 0.0
+    reason: str = ""
+    wpm: float = 0.0
+    backspace_ratio: float = 0.0
+    window_switches: int = 0
+    mouse_distance: float = 0.0
+    cpu_percent: float = 0.0
+    idle_seconds: float = 0.0
+    active_window: str = ""
+
+
+@app.post("/api/sync")
+def sync_cycle(data: CycleData):
+    """Receive cycle data from local app and save to cloud DB."""
+    metrics = {
+        "wpm": data.wpm,
+        "backspace_ratio": data.backspace_ratio,
+        "window_switches": data.window_switches,
+        "mouse_distance": data.mouse_distance,
+        "cpu_percent": data.cpu_percent,
+        "idle_seconds": data.idle_seconds,
+        "active_window": data.active_window,
+    }
+    classification = {
+        "state": data.state,
+        "confidence": data.confidence,
+        "reason": data.reason,
+    }
+    save_cycle(data.session_id, metrics, classification)
+    return {"status": "ok", "session_id": data.session_id}
 
 
 if DASHBOARD_DIR.is_dir():
